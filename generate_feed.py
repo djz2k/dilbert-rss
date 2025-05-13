@@ -8,11 +8,12 @@ from xml.etree import ElementTree as ET
 # Constants
 COMIC_URL = 'https://dilbert-viewer.herokuapp.com/random'
 RSS_FILE = 'docs/dilbert-clean.xml'
+HOMEPAGE = 'https://djz2k.github.io/dilbert-rss/'
 
 # Ensure output folder exists
 os.makedirs('docs', exist_ok=True)
 
-# Fetch the random comic
+# Fetch the comic
 res = requests.get(COMIC_URL)
 soup = BeautifulSoup(res.text, 'html.parser')
 img = soup.find('img')
@@ -22,28 +23,27 @@ if img_url:
     fg = FeedGenerator()
     fg.load_extension('media')
     fg.title('Daily Dilbert')
-    fg.link(href='https://djz2k.github.io/dilbert-rss/', rel='alternate')
-    fg.link(href='https://djz2k.github.io/dilbert-rss/dilbert-clean.xml', rel='self')
+    fg.link(href=HOMEPAGE, rel='alternate')  # Homepage for human readers
+    fg.link(href=HOMEPAGE + 'dilbert-clean.xml', rel='self')  # Feed URL
+    fg.id(HOMEPAGE)  # Set channel ID to homepage
     fg.description('A new Dilbert comic every day.')
     fg.language('en')
 
     fe = fg.add_entry()
     now = datetime.now(timezone.utc)
-    fe.title(f'Dilbert - {now.strftime("%Y-%m-%d")}')
-    fe.pubDate(now)
+    today_str = now.strftime('%Y-%m-%d')
+    html_url = f"{HOMEPAGE}dilbert-{today_str}.html"
 
-    # Point to the HTML page as canonical entry link
-    html_url = f"https://djz2k.github.io/dilbert-rss/dilbert-{now.strftime('%Y-%m-%d')}.html"
+    fe.title(f'Dilbert - {today_str}')
+    fe.pubDate(now)
     fe.link(href=html_url)
     fe.guid(html_url, permalink=True)
+    fe.description(f'<p><img src="{img_url}" alt="Dilbert comic for {today_str}" /></p>')
 
-    # Inline image in the description
-    fe.description(f'<p><img src="{img_url}" alt="Dilbert comic for {now.strftime("%Y-%m-%d")}" /></p>')
-
-    # Write initial RSS file
+    # Generate initial feed XML
     fg.rss_file(RSS_FILE)
 
-    # Modify RSS file manually with ElementTree
+    # Clean up the feed with ElementTree
     tree = ET.parse(RSS_FILE)
     root = tree.getroot()
     ET.register_namespace('media', "http://search.yahoo.com/mrss/")
@@ -52,7 +52,7 @@ if img_url:
     channel = root.find('channel')
     item = channel.find('item')
 
-    # Insert <media:content> into <item>
+    # Add <media:content>
     media_content = ET.Element('{http://search.yahoo.com/mrss/}content', {
         'url': img_url,
         'type': 'image/jpeg',
@@ -60,41 +60,39 @@ if img_url:
     })
     item.append(media_content)
 
-    # Insert <image> BEFORE <item>
+    # Add <image> block at top of <channel>
     image_tag = ET.Element('image')
     ET.SubElement(image_tag, 'url').text = img_url
     ET.SubElement(image_tag, 'title').text = 'Daily Dilbert'
-    ET.SubElement(image_tag, 'link').text = 'https://djz2k.github.io/dilbert-rss/'
+    ET.SubElement(image_tag, 'link').text = HOMEPAGE
     channel.insert(list(channel).index(item), image_tag)
 
-    # Save updated XML
     tree.write(RSS_FILE, encoding='utf-8', xml_declaration=True)
 
-    # Generate the daily HTML page for rich previews
+    # Generate daily HTML page with OG metadata
     html_template = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta property="og:title" content="Dilbert - {now.strftime('%Y-%m-%d')}" />
+  <meta property="og:title" content="Dilbert - {today_str}" />
   <meta property="og:description" content="Today's Dilbert comic" />
   <meta property="og:image" content="{img_url}" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="{html_url}" />
-  <title>Dilbert - {now.strftime('%Y-%m-%d')}</title>
+  <title>Dilbert - {today_str}</title>
   <style>body {{ font-family: sans-serif; text-align: center; padding: 2em; }}</style>
 </head>
 <body>
-  <h1>Dilbert - {now.strftime('%Y-%m-%d')}</h1>
-  <img src="{img_url}" alt="Dilbert comic for {now.strftime('%Y-%m-%d')}" style="max-width: 100%; height: auto;" />
+  <h1>Dilbert - {today_str}</h1>
+  <img src="{img_url}" alt="Dilbert comic for {today_str}" style="max-width: 100%; height: auto;" />
   <p><a href="{img_url}" target="_blank">View original image</a></p>
 </body>
 </html>
 """
-    html_path = f'docs/dilbert-{now.strftime("%Y-%m-%d")}.html'
-    with open(html_path, 'w', encoding='utf-8') as f:
+    with open(f'docs/dilbert-{today_str}.html', 'w', encoding='utf-8') as f:
         f.write(html_template)
 
-    # Generate index.html pointing to the latest
+    # Generate index.html that always points to latest
     index_html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -103,7 +101,7 @@ if img_url:
   <meta property="og:description" content="The latest Dilbert comic" />
   <meta property="og:image" content="{img_url}" />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://djz2k.github.io/dilbert-rss/index.html" />
+  <meta property="og:url" content="{HOMEPAGE}" />
   <title>Today's Dilbert</title>
   <style>body {{ font-family: sans-serif; text-align: center; padding: 2em; }}</style>
 </head>
@@ -119,6 +117,6 @@ if img_url:
     with open('docs/index.html', 'w', encoding='utf-8') as f:
         f.write(index_html)
 
-    print(f"✅ RSS + HTML + index updated for {now.strftime('%Y-%m-%d')}")
+    print(f"✅ RSS, HTML, and index updated for {today_str}")
 else:
     print("⚠️ No image found.")
