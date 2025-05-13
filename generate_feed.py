@@ -31,10 +31,10 @@ if img_url:
     fe.link(href=img_url)
     fe.guid(img_url, permalink=True)
 
-    # Embed the image in the description for visual RSS readers
+    # Embed image in the description for RSS readers
     fe.description(f'<p><img src="{img_url}" alt="Dilbert comic for {now.strftime("%Y-%m-%d")}" /></p>')
 
-    # Use standard RSS <enclosure> to include the image metadata (no media:group)
+    # Add image metadata as enclosure (RSS standard)
     fe.enclosure(img_url, 0, 'image/jpeg')
 
     fg.rss_file(RSS_FILE)
