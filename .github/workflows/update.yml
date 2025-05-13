@@ -22,7 +22,8 @@ jobs:
         run: pip install requests beautifulsoup4 feedgen
 
       - name: Run script to generate RSS feed
-        run: python ./generate_feed.py
+        working-directory: ./  # explicitly set to top-level project dir
+        run: python generate_feed.py
 
       - name: Commit and push updated feed
         run: |
