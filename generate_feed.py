@@ -6,7 +6,7 @@ from feedgen.feed import FeedGenerator
 
 # Constants
 COMIC_URL = 'https://dilbert-viewer.herokuapp.com/random'
-RSS_FILE = 'docs/dilbert.xml'
+RSS_FILE = 'docs/dilbert-clean.xml'
 
 # Ensure the docs directory exists
 os.makedirs('docs', exist_ok=True)
