@@ -2,7 +2,7 @@ name: Daily Dilbert RSS Update
 
 on:
   schedule:
-    - cron: '0 14 * * *'  # Runs daily at 6am PST / 9am EST
+    - cron: '0 14 * * *'  # 6am PT / 9am ET
   workflow_dispatch:
 
 jobs:
@@ -21,14 +21,13 @@ jobs:
       - name: Install Python dependencies
         run: pip install requests beautifulsoup4 feedgen
 
-      - name: Run script to generate RSS feed
-        working-directory: ./
+      - name: Run script to generate RSS feed and HTML pages
         run: python generate_feed.py
 
-      - name: Commit and push updated feed
+      - name: Commit and push updated files
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add docs/dilbert.xml
-          git commit -m "Daily RSS update $(date)" || echo "No changes to commit"
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
+          git add docs/*.xml docs/*.html || true
+          git commit -m "Daily RSS update $(date -u +'%Y-%m-%d')" || echo "No changes to commit"
+          git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:main
