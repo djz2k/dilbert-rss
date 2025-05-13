@@ -17,13 +17,13 @@ soup = BeautifulSoup(res.text, 'html.parser')
 img = soup.find('img')
 img_url = img['src'] if img else None
 
-# Generate RSS feed
 if img_url:
     fg = FeedGenerator()
-    fg.load_extension('media')  # Enables <media:content>
+    fg.load_extension('media')  # Required to use media:content tag
     fg.title('Daily Dilbert')
     fg.link(href='https://djz2k.github.io/dilbert-rss/dilbert.xml', rel='self')
     fg.description('A new Dilbert comic every day.')
+    fg.language('en')
 
     fe = fg.add_entry()
     now = datetime.now(timezone.utc)
@@ -31,13 +31,13 @@ if img_url:
     fe.pubDate(now)
     fe.link(href=img_url)
 
-    # Embed image in the description
+    # Rich image in description
     fe.description(f'<p><img src="{img_url}" alt="Dilbert comic for {now.strftime("%Y-%m-%d")}" /></p>')
 
-    # Add media:content for better RSS support
+    # Embed in metadata
     fe.media.content({
         'url': img_url,
-        'type': 'image/jpeg',  # You could use 'image/png' if needed
+        'type': 'image/jpeg',
         'medium': 'image',
     })
 
