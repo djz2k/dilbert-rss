@@ -19,7 +19,7 @@ img_url = img['src'] if img else None
 
 if img_url:
     fg = FeedGenerator()
-    fg.load_extension('media')  # Required to use media:content tag
+    fg.load_extension('media')
     fg.title('Daily Dilbert')
     fg.link(href='https://djz2k.github.io/dilbert-rss/dilbert.xml', rel='self')
     fg.description('A new Dilbert comic every day.')
@@ -30,16 +30,15 @@ if img_url:
     fe.title(f'Dilbert - {now.strftime("%Y-%m-%d")}')
     fe.pubDate(now)
     fe.link(href=img_url)
-
-    # Rich image in description
+    fe.guid(img_url, permalink=True)
     fe.description(f'<p><img src="{img_url}" alt="Dilbert comic for {now.strftime("%Y-%m-%d")}" /></p>')
 
-    # Embed in metadata
-    fe.media.content({
+    # Embed media:content directly without media:group
+    fe._element.append(fg.extensions['media']['content']({
         'url': img_url,
         'type': 'image/jpeg',
-        'medium': 'image',
-    })
+        'medium': 'image'
+    }))
 
     fg.rss_file(RSS_FILE)
     print(f"✅ RSS updated with comic: {img_url}")
