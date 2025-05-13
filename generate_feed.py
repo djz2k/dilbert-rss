@@ -35,6 +35,21 @@ if img_url:
 
     # Generate the feed and manually inject media:content
     fg.rss_file(RSS_FILE)
+    # Parse the RSS XML
+    tree = ET.parse(RSS_FILE)
+    root = tree.getroot()
+
+    # Locate the <channel> tag
+    channel = root.find('channel')
+
+    # Inject <image> block if not already present
+    image_tag = ET.SubElement(channel, 'image')
+    ET.SubElement(image_tag, 'url').text = img_url
+    ET.SubElement(image_tag, 'title').text = 'Daily Dilbert'
+    ET.SubElement(image_tag, 'link').text = 'https://djz2k.github.io/dilbert-rss/'
+
+    # Re-save the updated XML with channel image included
+    tree.write(RSS_FILE, encoding='utf-8', xml_declaration=True)
 
     # Inject <media:content> using ElementTree
     tree = ET.parse(RSS_FILE)
