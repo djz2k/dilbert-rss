@@ -3,6 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone
 from feedgen.feed import FeedGenerator
+from xml.etree.ElementTree import Element
 
 # Constants
 COMIC_URL = 'https://dilbert-viewer.herokuapp.com/random'
@@ -19,8 +20,9 @@ img_url = img['src'] if img else None
 
 if img_url:
     fg = FeedGenerator()
+    fg.load_extension('media')
     fg.title('Daily Dilbert')
-    fg.link(href='https://djz2k.github.io/dilbert-rss/dilbert.xml', rel='self')
+    fg.link(href='https://djz2k.github.io/dilbert-rss/dilbert-clean.xml', rel='self')
     fg.description('A new Dilbert comic every day.')
     fg.language('en')
 
@@ -31,12 +33,18 @@ if img_url:
     fe.link(href=img_url)
     fe.guid(img_url, permalink=True)
 
-    # Embed image in the description for RSS readers
+    # Embed comic in body
     fe.description(f'<p><img src="{img_url}" alt="Dilbert comic for {now.strftime("%Y-%m-%d")}" /></p>')
 
-    # Add image metadata as enclosure (RSS standard)
-    fe.enclosure(img_url, 0, 'image/jpeg')
+    # Inject <media:content> manually without <media:group>
+    media_content = Element("media:content", {
+        "url": img_url,
+        "type": "image/jpeg",
+        "medium": "image"
+    })
+    fe._feed_entry.append(media_content)
 
+    # Output the feed
     fg.rss_file(RSS_FILE)
     print(f"✅ RSS updated with comic: {img_url}")
 else:
