@@ -1,92 +1,140 @@
+import datetime
 import os
+import json
 import requests
-from bs4 import BeautifulSoup
-from datetime import datetime, timezone
-from feedgen.feed import FeedGenerator
-from xml.etree import ElementTree as ET
+from pathlib import Path
+from xml.sax.saxutils import escape
 
 # Constants
-COMIC_URL = 'https://dilbert-viewer.herokuapp.com/random'
-RSS_FILE = 'docs/dilbert-clean.xml'
-HTML_TEMPLATE = 'docs/dilbert-{date}.html'
-HOMEPAGE = 'https://djz2k.github.io/dilbert-rss/'
+OUTPUT_DIR = Path("docs")
+IMG_DIR = OUTPUT_DIR / "img"
+FEED_FILE = OUTPUT_DIR / "dilbert-clean.xml"
+INDEX_FILE = OUTPUT_DIR / "index.html"
+USED_FILE = Path("used_comics.json")
+BASE_URL = "https://djz2k.github.io/dilbert-rss"
 
-# Ensure output folder exists
-os.makedirs('docs', exist_ok=True)
+IMG_DIR.mkdir(parents=True, exist_ok=True)
 
-# Fetch the comic
-res = requests.get(COMIC_URL)
-soup = BeautifulSoup(res.text, 'html.parser')
-img = soup.find('img')
-img_url = img['src'] if img else None
+# Get today's date
+today = datetime.date.today()
+date_str = today.strftime("%Y-%m-%d")
+short_date = today.strftime("%y%m%d")
 
-if img_url:
-    fg = FeedGenerator()
-    fg.load_extension('media')
-    fg.title('Daily Dilbert')
-    fg.link(href=HOMEPAGE, rel='alternate')
-    fg.link(href=HOMEPAGE + 'dilbert-clean.xml', rel='self')
-    fg.id(HOMEPAGE)
-    fg.description('A new Dilbert comic every day.')
-    fg.language('en')
+# Construct original image URL
+original_img_url = f"https://web.archive.org/web/2023{short_date}im_/https://assets.amuniversal.com/{short_date}d8ab06cc901301d50001dd8b71c47"
 
-    fe = fg.add_entry()
-    now = datetime.now(timezone.utc)
-    today_str = now.strftime('%Y-%m-%d')
-    html_url = f"{HOMEPAGE}dilbert-{today_str}.html"
+# Save image locally to proxy through GitHub Pages
+proxied_img_path = IMG_DIR / f"{date_str}.jpg"
+proxied_img_url = f"{BASE_URL}/img/{date_str}.jpg"
 
-    fe.title(f'Dilbert - {today_str}')
-    fe.pubDate(now)
-    fe.link(href=html_url)
-    fe.guid(html_url, permalink=True)
-    fe.description(f'<p><img src="{img_url}" alt="Dilbert comic for {today_str}" /></p>')
+if not proxied_img_path.exists():
+    try:
+        response = requests.get(original_img_url, timeout=10)
+        response.raise_for_status()
+        with open(proxied_img_path, "wb") as f:
+            f.write(response.content)
+        print(f"✅ Downloaded and saved image to {proxied_img_path}")
+    except Exception as e:
+        print(f"❌ Failed to download image: {e}")
+        exit(1)
+else:
+    print(f"⏭️ Image already exists at {proxied_img_path}, skipping download.")
 
-    # Generate RSS feed
-    fg.rss_file(RSS_FILE)
+# Generate HTML page
+def generate_html(date_str, img_url):
+    filename = f"dilbert-{date_str}.html"
+    page_url = f"{BASE_URL}/{filename}"
 
-    # Enhance with media content
-    tree = ET.parse(RSS_FILE)
-    root = tree.getroot()
-    ET.register_namespace('media', "http://search.yahoo.com/mrss/")
-    ET.register_namespace('atom', "http://www.w3.org/2005/Atom")
-
-    channel = root.find('channel')
-    item = channel.find('item')
-
-    # <media:content>
-    media_content = ET.Element('{http://search.yahoo.com/mrss/}content', {
-        'url': img_url,
-        'type': 'image/jpeg',
-        'medium': 'image'
-    })
-    item.append(media_content)
-
-    # <image> block for feed
-    image_tag = ET.Element('image')
-    ET.SubElement(image_tag, 'url').text = img_url
-    ET.SubElement(image_tag, 'title').text = 'Daily Dilbert'
-    ET.SubElement(image_tag, 'link').text = HOMEPAGE
-    channel.insert(0, image_tag)
-
-    tree.write(RSS_FILE, encoding='utf-8', xml_declaration=True)
-
-    # Generate per-day HTML page with Open Graph meta tags
-    html_output = HTML_TEMPLATE.format(date=today_str)
-    with open(html_output, 'w') as f:
-        f.write(f'''<!DOCTYPE html>
+    html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dilbert Comic - {today_str}</title>
-  <meta property="og:title" content="Dilbert Comic - {today_str}" />
+  <meta property="og:title" content="Dilbert - {date_str}" />
+  <meta property="og:description" content="Today's Dilbert comic" />
   <meta property="og:image" content="{img_url}" />
-  <meta property="og:description" content="Daily Dilbert comic for {today_str}" />
-  <meta property="og:url" content="{html_url}" />
-  <meta property="og:type" content="article" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="{page_url}" />
+  <title>Dilbert - {date_str}</title>
+  <style>body {{ font-family: sans-serif; text-align: center; padding: 2em; }}</style>
 </head>
 <body>
-  <h1>Dilbert - {today_str}</h1>
-  <img src="{img_url}" alt="Dilbert comic for {today_str}" />
+  <h1>Dilbert - {date_str}</h1>
+  <img src="{img_url}" alt="Dilbert comic for {date_str}" style="max-width: 100%; height: auto;" />
+  <p><a href="{img_url}" target="_blank">View full-size image</a></p>
 </body>
-</html>''')
+</html>"""
+    with open(OUTPUT_DIR / filename, "w", encoding="utf-8") as f:
+        f.write(html)
+    return filename, page_url
+
+filename, page_url = generate_html(date_str, proxied_img_url)
+
+# Load or create used_comics.json
+if USED_FILE.exists():
+    with open(USED_FILE, "r") as f:
+        used = json.load(f)
+else:
+    used = []
+
+# Check if already added
+if any(comic["date"] == date_str for comic in used):
+    print(f"⏭️ Already generated for {date_str}, exiting.")
+    exit(0)
+
+# Prepend new entry
+used.insert(0, {
+    "date": date_str,
+    "title": f"Dilbert - {date_str}",
+    "link": page_url
+})
+used = used[:30]
+with open(USED_FILE, "w") as f:
+    json.dump(used, f, indent=2)
+
+# Update RSS
+def update_feed(entries):
+    feed_items = ""
+    for entry in entries:
+        feed_items += f"""
+  <item>
+    <title>{escape(entry['title'])}</title>
+    <link>{entry['link']}</link>
+    <guid>{entry['link']}</guid>
+    <description>{escape(entry['title'])}</description>
+  </item>"""
+
+    rss = f"""<?xml version='1.0' encoding='utf-8'?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+<channel>
+  <title>Daily Dilbert</title>
+  <link>{BASE_URL}/dilbert-clean.xml</link>
+  <description>Unofficial Dilbert RSS Feed</description>
+  <atom:link href="{BASE_URL}/dilbert-clean.xml" rel="self" type="application/rss+xml" />
+  <lastBuildDate>{datetime.datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')}</lastBuildDate>
+  {feed_items}
+</channel>
+</rss>"""
+
+    with open(FEED_FILE, "w", encoding="utf-8") as f:
+        f.write(rss)
+
+update_feed(used)
+
+# Update index.html
+def update_index(latest_filename):
+    redirect_html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="refresh" content="0; url={latest_filename}" />
+  <title>Redirecting…</title>
+</head>
+<body>
+  <p>Redirecting to <a href="{latest_filename}">{latest_filename}</a></p>
+</body>
+</html>"""
+    with open(INDEX_FILE, "w", encoding="utf-8") as f:
+        f.write(redirect_html)
+
+update_index(filename)
+print(f"✅ Done generating {filename} and RSS.")
