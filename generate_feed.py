@@ -6,7 +6,7 @@ import hashlib
 import datetime
 import requests
 from bs4 import BeautifulSoup
-from feedgenerator import Rss201rev2Feed
+from feedgenerator import Rss201rev2Feed, Enclosure
 
 BASE_URL = "https://djz2k.github.io/dilbert-rss"
 OUTPUT_DIR = "docs"
@@ -37,6 +37,9 @@ def download_comic_image():
 
         img_url = img_tag["src"]
         image_filename = os.path.basename(img_url).split("?")[0]
+        if not image_filename.lower().endswith(".jpg"):
+            image_filename += ".jpg"
+
         local_path = os.path.join(OUTPUT_DIR, "images", image_filename)
         os.makedirs(os.path.dirname(local_path), exist_ok=True)
 
@@ -104,6 +107,7 @@ def main():
     used_comics.add(today)
     save_used_comics(used_comics)
 
+    # RSS feed with enclosure
     feed = Rss201rev2Feed(
         title="Daily Dilbert",
         link=f"{BASE_URL}/dilbert-clean.xml",
@@ -111,17 +115,22 @@ def main():
         language="en",
     )
 
+    image_url = f"{BASE_URL}/images/{filename}"
+    image_size = os.path.getsize(local_path)
+
     feed.add_item(
         title=f"Dilbert for {today}",
         link=page_url,
         description=f"See the Dilbert comic for {today}.",
         unique_id=hashlib.md5(page_url.encode()).hexdigest(),
         pubdate=datetime.datetime.now(datetime.UTC),
-        enclosures=[type('Enclosure', (object,), {
-            'url': f"{BASE_URL}/images/{filename}",
-            'length': str(os.path.getsize(local_path)),
-            'mime_type': "image/jpeg"
-        })()]
+        enclosures=[
+            Enclosure(
+                url=image_url,
+                length=str(image_size),
+                mime_type="image/jpeg"
+            )
+        ]
     )
 
     with open(os.path.join(OUTPUT_DIR, "dilbert-clean.xml"), "w", encoding="utf-8") as f:
