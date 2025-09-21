@@ -6,7 +6,7 @@ import hashlib
 import datetime
 import requests
 from bs4 import BeautifulSoup
-from feedgenerator import Rss201rev2Feed, Enclosure
+from feedgenerator import Rss201rev2Feed
 
 BASE_URL = "https://djz2k.github.io/dilbert-rss"
 OUTPUT_DIR = "docs"
@@ -36,9 +36,12 @@ def download_comic_image():
             return None, None, None
 
         img_url = img_tag["src"]
-        image_filename = os.path.basename(img_url).split("?")[0]
-        if not image_filename.lower().endswith(".jpg"):
-            image_filename += ".jpg"
+        if not img_url:
+            return None, None, None
+
+        # Extract image filename and force .jpg extension
+        image_id = os.path.basename(img_url).split("?")[0]
+        image_filename = f"{image_id}.jpg"
 
         local_path = os.path.join(OUTPUT_DIR, "images", image_filename)
         os.makedirs(os.path.dirname(local_path), exist_ok=True)
@@ -49,6 +52,8 @@ def download_comic_image():
             with open(local_path, "wb") as f:
                 f.write(img_data.content)
             print(f"✅ Downloaded image: {local_path}")
+        else:
+            print(f"ℹ️ Image already exists: {local_path}")
 
         return local_path, image_filename, img_url
     except Exception as e:
@@ -107,7 +112,8 @@ def main():
     used_comics.add(today)
     save_used_comics(used_comics)
 
-    # RSS feed with enclosure
+    image_url = f"{BASE_URL}/images/{filename}"
+
     feed = Rss201rev2Feed(
         title="Daily Dilbert",
         link=f"{BASE_URL}/dilbert-clean.xml",
@@ -115,22 +121,17 @@ def main():
         language="en",
     )
 
-    image_url = f"{BASE_URL}/images/{filename}"
-    image_size = os.path.getsize(local_path)
-
     feed.add_item(
         title=f"Dilbert for {today}",
         link=page_url,
         description=f"See the Dilbert comic for {today}.",
         unique_id=hashlib.md5(page_url.encode()).hexdigest(),
         pubdate=datetime.datetime.now(datetime.UTC),
-        enclosures=[
-            Enclosure(
-                url=image_url,
-                length=str(image_size),
-                mime_type="image/jpeg"
-            )
-        ]
+        enclosures=[type('Enclosure', (object,), {
+            'url': image_url,
+            'length': str(os.path.getsize(local_path)),
+            'mime_type': "image/jpeg"
+        })()]
     )
 
     with open(os.path.join(OUTPUT_DIR, "dilbert-clean.xml"), "w", encoding="utf-8") as f:
