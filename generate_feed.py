@@ -12,16 +12,11 @@ from feedgenerator import Rss201rev2Feed
 BASE_URL = "https://djz2k.github.io/dilbert-rss"
 OUTPUT_DIR = "docs"
 USED_COMICS_FILE = "used_comics.json"
-ARCHIVE_BASE = "https://web.archive.org/web/"
-DILBERT_ARCHIVE = "https://dilbert.com/strip/"
-
+SOURCE_URL = "https://dilbert-viewer.herokuapp.com/random"
 HEADERS = {"User-Agent": "Mozilla/5.0"}
 
 def get_today_date():
     return datetime.date.today().isoformat()
-
-def get_yesterday_date():
-    return (datetime.date.today() - datetime.timedelta(days=1)).isoformat()
 
 def load_used_comics():
     if os.path.exists(USED_COMICS_FILE):
@@ -32,6 +27,21 @@ def load_used_comics():
 def save_used_comics(used):
     with open(USED_COMICS_FILE, "w") as f:
         json.dump(sorted(list(used)), f, indent=2)
+
+def fetch_random_comic():
+    try:
+        response = requests.get(SOURCE_URL, headers=HEADERS)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, "html.parser")
+        img_tag = soup.find("img")
+        if not img_tag or not img_tag.get("src"):
+            print("❌ No image found on Dilbert viewer.")
+            return None, None
+        img_url = img_tag["src"]
+        return img_url, SOURCE_URL
+    except Exception as e:
+        print(f"❌ Error fetching comic: {e}")
+        return None, None
 
 def download_and_save_image(image_url, save_path):
     try:
@@ -44,34 +54,6 @@ def download_and_save_image(image_url, save_path):
     except Exception as e:
         print(f"❌ Failed to download image: {e}")
         return False
-
-def fetch_comic(date_str):
-    comic_url = f"{DILBERT_ARCHIVE}{date_str}"
-    try:
-        response = requests.get(comic_url, headers=HEADERS)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, "html.parser")
-        img_tag = soup.find("img", attrs={"src": re.compile(r"assets\.amuniversal\.com")})
-        if not img_tag:
-            print(f"❌ Comic image not found on page for {date_str}")
-            return None, None, comic_url
-
-        img_url = img_tag["src"]
-        # Proxy via Wayback Machine
-        wayback_url = f"{ARCHIVE_BASE}{date_str.replace('-', '')}im_/{img_url}"
-        image_filename = os.path.basename(img_url).split("?")[0]
-        local_image_path = os.path.join(OUTPUT_DIR, "images", image_filename)
-        os.makedirs(os.path.dirname(local_image_path), exist_ok=True)
-
-        if not os.path.exists(local_image_path):
-            success = download_and_save_image(wayback_url, local_image_path)
-            if not success:
-                return None, None, comic_url
-
-        return local_image_path, image_filename, comic_url
-    except Exception as e:
-        print(f"❌ Error fetching comic for {date_str}: {e}")
-        return None, None, comic_url
 
 def generate_html(date_str, image_filename, comic_url):
     html_path = os.path.join(OUTPUT_DIR, f"dilbert-{date_str}.html")
@@ -88,11 +70,11 @@ def generate_html(date_str, image_filename, comic_url):
     <meta property="og:type" content="article" />
     <meta property="og:url" content="{page_url}" />
     {"<meta property='og:image' content='" + image_url + "' />" if image_url else ""}
-    <meta property="og:description" content="View today's Dilbert comic." />
+    <meta property="og:description" content='Today&apos;s Dilbert comic.' />
 </head>
 <body>
     <h1>Dilbert for {date_str}</h1>
-    {f'<a href="{comic_url}" target="_blank"><img src="{image_url}" alt="Dilbert comic for {date_str}"></a>' if image_url else '<p>Comic not available yet.</p>'}
+    {f'<a href="{comic_url}" target="_blank"><img src="{image_url}" alt="Dilbert comic for {date_str}"></a>' if image_url else '<p>Comic not available.</p>'}
 </body>
 </html>
 """
@@ -111,6 +93,7 @@ def generate_debug_html(all_logs):
 def main():
     today = get_today_date()
     used_comics = load_used_comics()
+    logs = [f"🕒 Running at {datetime.datetime.utcnow().isoformat()} UTC"]
     feed = Rss201rev2Feed(
         title="Daily Dilbert",
         link=f"{BASE_URL}/dilbert-clean.xml",
@@ -118,39 +101,41 @@ def main():
         language="en",
     )
 
-    logs = [f"🕒 Running at {datetime.datetime.utcnow().isoformat()} UTC"]
-    generated_count = 0
+    image_url, source_link = fetch_random_comic()
+    if not image_url:
+        logs.append("❌ Could not fetch image.")
+        generate_debug_html(logs)
+        return
 
-    for i in range(10):
-        date = (datetime.date.today() - datetime.timedelta(days=i)).isoformat()
-        if date in used_comics:
-            continue
+    comic_hash = hashlib.sha256(image_url.encode()).hexdigest()
+    if comic_hash in used_comics:
+        logs.append("⚠️ Duplicate image. Already used. Skipping.")
+        generate_debug_html(logs)
+        return
 
-        local_image_path, image_filename, comic_url = fetch_comic(date)
-        if local_image_path:
-            page_url = generate_html(date, image_filename, comic_url)
-            feed.add_item(
-                title=f"Dilbert for {date}",
-                link=page_url,
-                description=f"See the Dilbert comic for {date}.",
-                unique_id=hashlib.md5(page_url.encode()).hexdigest(),
-                pubdate=datetime.datetime.strptime(date, "%Y-%m-%d"),
-                enclosures=[{
-                    "url": f"{BASE_URL}/images/{image_filename}",
-                    "length": str(os.path.getsize(local_image_path)),
-                    "mime_type": "image/jpeg"
-                }]
-            )
-            used_comics.add(date)
-            logs.append(f"✅ Added {date} → {page_url}")
-            generated_count += 1
-        else:
-            page_url = generate_html(date, None, comic_url)
-            logs.append(f"⚠️ Skipped {date} (missing image): {comic_url}")
-            continue
+    image_filename = os.path.basename(image_url.split("?")[0])
+    local_image_path = os.path.join(OUTPUT_DIR, "images", image_filename)
+    os.makedirs(os.path.dirname(local_image_path), exist_ok=True)
 
-    if generated_count == 0:
-        logs.append("⚠️ No new comics were added.")
+    success = download_and_save_image(image_url, local_image_path)
+    if not success:
+        logs.append("❌ Failed to save image.")
+        generate_debug_html(logs)
+        return
+
+    page_url = generate_html(today, image_filename, source_link)
+    feed.add_item(
+        title=f"Dilbert for {today}",
+        link=page_url,
+        description=f"View the Dilbert comic for {today}.",
+        unique_id=comic_hash,
+        pubdate=datetime.datetime.utcnow(),
+        enclosures=[{
+            "url": f"{BASE_URL}/images/{image_filename}",
+            "length": str(os.path.getsize(local_image_path)),
+            "mime_type": "image/jpeg"
+        }]
+    )
 
     with open(os.path.join(OUTPUT_DIR, "dilbert-clean.xml"), "w", encoding="utf-8") as f:
         feed.write(f, "utf-8")
@@ -164,7 +149,9 @@ def main():
 <p><a href="dilbert-clean.xml">RSS Feed</a></p>
 </body></html>""")
 
+    used_comics.add(comic_hash)
     save_used_comics(used_comics)
+    logs.append(f"✅ Added {today} → {page_url}")
     generate_debug_html(logs)
     print("\n".join(logs))
 
