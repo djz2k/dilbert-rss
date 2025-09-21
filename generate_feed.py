@@ -36,12 +36,11 @@ def download_comic_image():
             return None, None, None
 
         img_url = img_tag["src"]
-        if not img_url:
-            return None, None, None
+        image_filename = os.path.basename(img_url).split("?")[0]
 
-        # Extract image filename and force .jpg extension
-        image_id = os.path.basename(img_url).split("?")[0]
-        image_filename = f"{image_id}.jpg"
+        # Ensure it ends in .jpg
+        if not image_filename.endswith(".jpg"):
+            image_filename += ".jpg"
 
         local_path = os.path.join(OUTPUT_DIR, "images", image_filename)
         os.makedirs(os.path.dirname(local_path), exist_ok=True)
@@ -52,8 +51,6 @@ def download_comic_image():
             with open(local_path, "wb") as f:
                 f.write(img_data.content)
             print(f"✅ Downloaded image: {local_path}")
-        else:
-            print(f"ℹ️ Image already exists: {local_path}")
 
         return local_path, image_filename, img_url
     except Exception as e:
@@ -113,6 +110,7 @@ def main():
     save_used_comics(used_comics)
 
     image_url = f"{BASE_URL}/images/{filename}"
+    file_size = os.path.getsize(local_path)
 
     feed = Rss201rev2Feed(
         title="Daily Dilbert",
@@ -124,12 +122,12 @@ def main():
     feed.add_item(
         title=f"Dilbert for {today}",
         link=page_url,
-        description=f"See the Dilbert comic for {today}.",
+        description=f"""<p>Dilbert comic for {today}.</p><img src="{image_url}" alt="Dilbert comic" />""",
         unique_id=hashlib.md5(page_url.encode()).hexdigest(),
         pubdate=datetime.datetime.now(datetime.UTC),
         enclosures=[type('Enclosure', (object,), {
             'url': image_url,
-            'length': str(os.path.getsize(local_path)),
+            'length': str(file_size),
             'mime_type': "image/jpeg"
         })()]
     )
