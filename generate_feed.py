@@ -1,133 +1,172 @@
+#!/usr/bin/env python3
 import os
+import re
+import json
+import time
+import hashlib
 import requests
 import datetime
 from bs4 import BeautifulSoup
+from feedgenerator import Rss201rev2Feed
 
-BASE_URL = "https://dilbert.com"
-ARCHIVE_URL_TEMPLATE = "https://web.archive.org/web/{timestamp}im_/https://assets.amuniversal.com/{image_id}"
-FALLBACK_TIMESTAMP = "20230303045303"
-FEED_PATH = "docs/dilbert-clean.xml"
-IMG_DIR = "docs/img"
-HTML_DIR = "docs"
+BASE_URL = "https://djz2k.github.io/dilbert-rss"
+OUTPUT_DIR = "docs"
+USED_COMICS_FILE = "used_comics.json"
+ARCHIVE_BASE = "https://web.archive.org/web/"
+DILBERT_ARCHIVE = "https://dilbert.com/strip/"
 
-def get_today():
-    return datetime.datetime.utcnow().date()
+HEADERS = {"User-Agent": "Mozilla/5.0"}
 
-def fetch_comic_page(date):
-    url = f"{BASE_URL}/strip/{date}"
-    res = requests.get(url)
-    res.raise_for_status()
-    return res.text
+def get_today_date():
+    return datetime.date.today().isoformat()
 
-def extract_image_id(page_html):
-    soup = BeautifulSoup(page_html, "html.parser")
-    meta = soup.find("meta", property="og:image")
-    if not meta:
-        raise ValueError("No og:image meta tag found")
-    image_url = meta["content"]
-    return image_url.strip().split("/")[-1]
+def get_yesterday_date():
+    return (datetime.date.today() - datetime.timedelta(days=1)).isoformat()
 
-def try_download_image(image_id, save_path):
-    for timestamp in [get_today().strftime("%Y%m%d000000"), FALLBACK_TIMESTAMP]:
-        url = ARCHIVE_URL_TEMPLATE.format(timestamp=timestamp, image_id=image_id)
-        try:
-            print(f"Trying to download image from {url}")
-            res = requests.get(url, timeout=10)
-            res.raise_for_status()
-            with open(save_path, "wb") as f:
-                f.write(res.content)
-            return url, True
-        except Exception as e:
-            print(f"Failed to download with timestamp {timestamp}: {e}")
-    return None, False
+def load_used_comics():
+    if os.path.exists(USED_COMICS_FILE):
+        with open(USED_COMICS_FILE, "r") as f:
+            return set(json.load(f))
+    return set()
 
-def write_html_page(date_str, image_filename):
-    local_image_path = f"img/{image_filename}"
-    full_page_path = os.path.join(HTML_DIR, f"dilbert-{date_str}.html")
+def save_used_comics(used):
+    with open(USED_COMICS_FILE, "w") as f:
+        json.dump(sorted(list(used)), f, indent=2)
+
+def download_and_save_image(image_url, save_path):
+    try:
+        response = requests.get(image_url, headers=HEADERS)
+        response.raise_for_status()
+        with open(save_path, "wb") as f:
+            f.write(response.content)
+        print(f"✅ Downloaded image: {save_path}")
+        return True
+    except Exception as e:
+        print(f"❌ Failed to download image: {e}")
+        return False
+
+def fetch_comic(date_str):
+    comic_url = f"{DILBERT_ARCHIVE}{date_str}"
+    try:
+        response = requests.get(comic_url, headers=HEADERS)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, "html.parser")
+        img_tag = soup.find("img", attrs={"src": re.compile(r"assets\.amuniversal\.com")})
+        if not img_tag:
+            print(f"❌ Comic image not found on page for {date_str}")
+            return None, None, comic_url
+
+        img_url = img_tag["src"]
+        # Proxy via Wayback Machine
+        wayback_url = f"{ARCHIVE_BASE}{date_str.replace('-', '')}im_/{img_url}"
+        image_filename = os.path.basename(img_url).split("?")[0]
+        local_image_path = os.path.join(OUTPUT_DIR, "images", image_filename)
+        os.makedirs(os.path.dirname(local_image_path), exist_ok=True)
+
+        if not os.path.exists(local_image_path):
+            success = download_and_save_image(wayback_url, local_image_path)
+            if not success:
+                return None, None, comic_url
+
+        return local_image_path, image_filename, comic_url
+    except Exception as e:
+        print(f"❌ Error fetching comic for {date_str}: {e}")
+        return None, None, comic_url
+
+def generate_html(date_str, image_filename, comic_url):
+    html_path = os.path.join(OUTPUT_DIR, f"dilbert-{date_str}.html")
+    page_url = f"{BASE_URL}/dilbert-{date_str}.html"
+    image_url = f"{BASE_URL}/images/{image_filename}" if image_filename else ""
+
     html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta property="og:title" content="Dilbert - {date_str}" />
-  <meta property="og:description" content="Dilbert comic for {date_str}" />
-  <meta property="og:image" content="https://djz2k.github.io/dilbert-rss/{local_image_path}" />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://djz2k.github.io/dilbert-rss/dilbert-{date_str}.html" />
-  <title>Dilbert - {date_str}</title>
-  <style>body {{ font-family: sans-serif; text-align: center; padding: 2em; }}</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dilbert for {date_str}</title>
+    <meta property="og:title" content="Dilbert for {date_str}" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="{page_url}" />
+    {"<meta property='og:image' content='" + image_url + "' />" if image_url else ""}
+    <meta property="og:description" content="View today's Dilbert comic." />
 </head>
 <body>
-  <h1>Dilbert - {date_str}</h1>
-  <img src="{local_image_path}" alt="Dilbert comic for {date_str}" style="max-width: 100%; height: auto;" />
-  <p><a href="{local_image_path}" target="_blank">View original image</a></p>
+    <h1>Dilbert for {date_str}</h1>
+    {f'<a href="{comic_url}" target="_blank"><img src="{image_url}" alt="Dilbert comic for {date_str}"></a>' if image_url else '<p>Comic not available yet.</p>'}
 </body>
 </html>
 """
-    with open(full_page_path, "w", encoding="utf-8") as f:
+    with open(html_path, "w") as f:
         f.write(html)
 
-def write_debug_page(date_str, original_page_html):
-    path = os.path.join(HTML_DIR, "debug.html")
-    with open(path, "w", encoding="utf-8") as f:
-        f.write(f"""<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8"><title>DEBUG - Dilbert {date_str}</title></head>
-<body><h1>DEBUG: Dilbert page for {date_str}</h1>
-<pre>{original_page_html}</pre>
-</body></html>
-""")
+    return page_url
 
-def update_rss_feed(date_str, image_filename):
-    local_image_url = f"https://djz2k.github.io/dilbert-rss/img/{image_filename}"
-    item = f"""<item>
-  <title>Dilbert for {date_str}</title>
-  <link>https://djz2k.github.io/dilbert-rss/dilbert-{date_str}.html</link>
-  <guid>https://djz2k.github.io/dilbert-rss/dilbert-{date_str}.html</guid>
-  <pubDate>{datetime.datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S +0000')}</pubDate>
-  <description><![CDATA[<img src="{local_image_url}" alt="Dilbert for {date_str}" />]]></description>
-</item>"""
-
-    if not os.path.exists(FEED_PATH):
-        print("Creating new feed file")
-        with open(FEED_PATH, "w", encoding="utf-8") as f:
-            f.write(f"""<?xml version="1.0" encoding="utf-8"?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
-<channel>
-  <title>Daily Dilbert</title>
-  <link>https://djz2k.github.io/dilbert-rss/</link>
-  <description>Unofficial daily Dilbert RSS feed</description>
-  <atom:link href="https://djz2k.github.io/dilbert-rss/dilbert-clean.xml" rel="self" type="application/rss+xml" />
-{item}
-</channel>
-</rss>""")
-    else:
-        with open(FEED_PATH, "r+", encoding="utf-8") as f:
-            rss = f.read()
-            updated = rss.replace("</channel></rss>", f"{item}\n</channel></rss>")
-            f.seek(0)
-            f.write(updated)
-            f.truncate()
+def generate_debug_html(all_logs):
+    path = os.path.join(OUTPUT_DIR, "debug.html")
+    with open(path, "w") as f:
+        f.write("<html><body><h1>Debug Output</h1><pre>\n")
+        f.write("\n".join(all_logs))
+        f.write("\n</pre></body></html>")
 
 def main():
-    today = get_today()
-    date_str = today.strftime("%Y-%m-%d")
-    try:
-        print(f"Fetching comic for {date_str}")
-        page = fetch_comic_page(date_str)
-        write_debug_page(date_str, page)
-        image_id = extract_image_id(page)
-        filename = f"{image_id}.jpg"
-        os.makedirs(IMG_DIR, exist_ok=True)
-        image_path = os.path.join(IMG_DIR, filename)
-        _, success = try_download_image(image_id, image_path)
-        if not success:
-            print(f"⚠️ Skipping {date_str} due to image download failure")
-            return
-        write_html_page(date_str, filename)
-        update_rss_feed(date_str, filename)
-        print(f"✅ Done for {date_str}")
-    except Exception as e:
-        print(f"❌ Failed to process {date_str}: {e}")
+    today = get_today_date()
+    used_comics = load_used_comics()
+    feed = Rss201rev2Feed(
+        title="Daily Dilbert",
+        link=f"{BASE_URL}/dilbert-clean.xml",
+        description="Unofficial Dilbert feed with direct image and link preview support.",
+        language="en",
+    )
+
+    logs = [f"🕒 Running at {datetime.datetime.utcnow().isoformat()} UTC"]
+    generated_count = 0
+
+    for i in range(10):
+        date = (datetime.date.today() - datetime.timedelta(days=i)).isoformat()
+        if date in used_comics:
+            continue
+
+        local_image_path, image_filename, comic_url = fetch_comic(date)
+        if local_image_path:
+            page_url = generate_html(date, image_filename, comic_url)
+            feed.add_item(
+                title=f"Dilbert for {date}",
+                link=page_url,
+                description=f"See the Dilbert comic for {date}.",
+                unique_id=hashlib.md5(page_url.encode()).hexdigest(),
+                pubdate=datetime.datetime.strptime(date, "%Y-%m-%d"),
+                enclosures=[{
+                    "url": f"{BASE_URL}/images/{image_filename}",
+                    "length": str(os.path.getsize(local_image_path)),
+                    "mime_type": "image/jpeg"
+                }]
+            )
+            used_comics.add(date)
+            logs.append(f"✅ Added {date} → {page_url}")
+            generated_count += 1
+        else:
+            page_url = generate_html(date, None, comic_url)
+            logs.append(f"⚠️ Skipped {date} (missing image): {comic_url}")
+            continue
+
+    if generated_count == 0:
+        logs.append("⚠️ No new comics were added.")
+
+    with open(os.path.join(OUTPUT_DIR, "dilbert-clean.xml"), "w", encoding="utf-8") as f:
+        feed.write(f, "utf-8")
+
+    with open(os.path.join(OUTPUT_DIR, "index.html"), "w") as f:
+        f.write(f"""<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Daily Dilbert</title></head>
+<body>
+<h1>Daily Dilbert RSS Feed</h1>
+<p>Latest comic: <a href="{page_url}">{page_url}</a></p>
+<p><a href="dilbert-clean.xml">RSS Feed</a></p>
+</body></html>""")
+
+    save_used_comics(used_comics)
+    generate_debug_html(logs)
+    print("\n".join(logs))
 
 if __name__ == "__main__":
     main()
