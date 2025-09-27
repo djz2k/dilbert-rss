@@ -38,7 +38,6 @@ def download_comic_image():
         img_url = img_tag["src"]
         image_filename = os.path.basename(img_url).split("?")[0]
 
-        # Ensure it ends in .jpg
         if not image_filename.endswith(".jpg"):
             image_filename += ".jpg"
 
@@ -51,6 +50,8 @@ def download_comic_image():
             with open(local_path, "wb") as f:
                 f.write(img_data.content)
             print(f"✅ Downloaded image: {local_path}")
+        else:
+            print(f"ℹ️ Image already exists: {local_path}")
 
         return local_path, image_filename, img_url
     except Exception as e:
@@ -94,20 +95,32 @@ def main():
     used_comics = load_used_comics()
     logs = [f"🕒 Running for {today}"]
 
-    if today in used_comics:
-        logs.append(f"⚠️ Comic for {today} already used. Skipping.")
-        generate_debug_html(logs)
-        return
+    download_new = today not in used_comics
+    filename = None
+    local_path = None
+    original_url = None
 
-    local_path, filename, original_url = download_comic_image()
-    if not local_path:
-        logs.append("❌ Failed to get comic.")
-        generate_debug_html(logs)
-        return
+    if download_new:
+        local_path, filename, original_url = download_comic_image()
+        if not local_path:
+            logs.append("❌ Failed to get comic.")
+            generate_debug_html(logs)
+            return
+    else:
+        logs.append(f"⚠️ Comic for {today} already used. Will reuse existing image.")
+        image_dir = os.path.join(OUTPUT_DIR, "images")
+        for fname in os.listdir(image_dir):
+            if today in fname and fname.endswith(".jpg"):
+                filename = fname
+                local_path = os.path.join(image_dir, fname)
+                original_url = "https://dilbert.com"  # fallback link
+                break
+        if not filename:
+            logs.append("❌ Could not find reused comic image.")
+            generate_debug_html(logs)
+            return
 
     page_url = generate_html(today, filename, original_url)
-    used_comics.add(today)
-    save_used_comics(used_comics)
 
     image_url = f"{BASE_URL}/images/{filename}"
     file_size = os.path.getsize(local_path)
@@ -143,6 +156,9 @@ def main():
 <p>Latest comic: <a href="{page_url}">{page_url}</a></p>
 <p><a href="dilbert-clean.xml">RSS Feed</a></p>
 </body></html>""")
+
+    used_comics.add(today)
+    save_used_comics(used_comics)
 
     logs.append(f"✅ Comic generated: {filename}")
     generate_debug_html(logs)
