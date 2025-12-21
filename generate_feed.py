@@ -37,7 +37,6 @@ def download_comic_image():
 
         img_url = img_tag["src"]
         image_filename = os.path.basename(img_url).split("?")[0]
-
         if not image_filename.endswith(".jpg"):
             image_filename += ".jpg"
 
@@ -68,15 +67,25 @@ def generate_html(date_str, image_filename, comic_url):
 <head>
   <meta charset="UTF-8">
   <title>Dilbert for {date_str}</title>
+
+  <!-- Open Graph -->
   <meta property="og:title" content="Dilbert for {date_str}" />
   <meta property="og:type" content="article" />
   <meta property="og:url" content="{page_url}" />
   <meta property="og:image" content="{image_url}" />
   <meta property="og:description" content="View today's Dilbert comic." />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Dilbert for {date_str}">
+  <meta name="twitter:description" content="View today's Dilbert comic.">
+  <meta name="twitter:image" content="{image_url}">
 </head>
 <body>
   <h1>Dilbert for {date_str}</h1>
-  <a href="{comic_url}" target="_blank"><img src="{image_url}" alt="Dilbert comic for {date_str}"></a>
+  <a href="{comic_url}" target="_blank">
+    <img src="{image_url}" alt="Dilbert comic for {date_str}">
+  </a>
 </body>
 </html>"""
     with open(html_path, "w") as f:
@@ -113,7 +122,7 @@ def main():
             if today in fname and fname.endswith(".jpg"):
                 filename = fname
                 local_path = os.path.join(image_dir, fname)
-                original_url = "https://dilbert.com"  # fallback link
+                original_url = "https://dilbert.com"  # fallback
                 break
         if not filename:
             logs.append("❌ Could not find reused comic image.")
