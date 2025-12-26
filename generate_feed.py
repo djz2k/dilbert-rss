@@ -73,41 +73,36 @@ def generate_html(date_str, image_filename, comic_url):
     page_url = f"{BASE_URL}/dilbert-{date_str}.html"
     image_url = f"{BASE_URL}/images/{image_filename}"
 
-    # 🔑 CRITICAL FIX:
-    # Cache-bust OG image so social platforms re-fetch it
+    # Critical fix — force social media to refetch a fresh image
     og_image_url = f"{image_url}?v={date_str.replace('-', '')}"
 
     html = f"""<!DOCTYPE html>
 <html lang="en" prefix="og: http://ogp.me/ns#">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <title>Dilbert for {date_str}</title>
 
-  <!-- Open Graph -->
+  <!-- Open Graph metadata -->
   <meta property="og:title" content="Dilbert for {date_str}" />
+  <meta property="og:description" content="View today's Dilbert comic." />
   <meta property="og:type" content="article" />
   <meta property="og:url" content="{page_url}" />
   <meta property="og:image" content="{og_image_url}" />
   <meta property="og:image:type" content="image/jpeg" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
-  <meta property="og:description" content="View today's Dilbert comic." />
-
-  <!-- Twitter / Slack / Discord fallback -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Dilbert for {date_str}" />
-  <meta name="twitter:description" content="View today's Dilbert comic." />
   <meta name="twitter:image" content="{og_image_url}" />
 </head>
 <body>
   <h1>Dilbert for {date_str}</h1>
   <a href="{comic_url}" target="_blank">
-    <img src="{image_url}" alt="Dilbert comic for {date_str}">
+    <img src="{image_url}" alt="Dilbert comic for {date_str}" style="max-width:100%;" />
   </a>
 </body>
-</html>"""
+</html>
+"""
 
     with open(html_path, "w", encoding="utf-8") as f:
         f.write(html)
@@ -156,15 +151,13 @@ def main():
         description=f'<p>Dilbert comic for {today}.</p><img src="{image_url}" alt="Dilbert comic" />',
         unique_id=hashlib.md5(page_url.encode()).hexdigest(),
         pubdate=datetime.datetime.now(datetime.UTC),
-        enclosures=[type(
-            "Enclosure",
-            (object,),
-            {
-                "url": image_url,
-                "length": str(file_size),
-                "mime_type": "image/jpeg",
-            },
-        )()],
+        enclosures=[
+            type(
+                "Enclosure",
+                (object,),
+                {"url": image_url, "length": str(file_size), "mime_type": "image/jpeg"},
+            )()
+        ],
     )
 
     with open(os.path.join(OUTPUT_DIR, "dilbert-clean.xml"), "w", encoding="utf-8") as f:
