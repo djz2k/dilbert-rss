@@ -30,7 +30,11 @@ def save_used_comics(used):
         json.dump(sorted(list(used)), f, indent=2)
 
 
-def download_comic_image():
+def download_comic_image(date_str):
+    """
+    Download Dilbert image and RENAME it so filename is UNIQUE PER DAY.
+    This is critical — Slack/Discord ignore ?v= cache busting.
+    """
     try:
         response = requests.get(
             "https://dilbert-viewer.herokuapp.com/random",
@@ -38,22 +42,24 @@ def download_comic_image():
             timeout=15,
         )
         response.raise_for_status()
-
         soup = BeautifulSoup(response.text, "html.parser")
+
         img_tag = soup.find("img", {"src": re.compile(r"amuniversal\.com")})
         if not img_tag:
             return None, None, None
 
-        img_url = img_tag["src"]
-        image_filename = os.path.basename(img_url).split("?")[0]
-        if not image_filename.endswith(".jpg"):
-            image_filename += ".jpg"
+        original_url = img_tag["src"]
+        base_filename = os.path.basename(original_url).split("?")[0]
+        base_filename = os.path.splitext(base_filename)[0]
+
+        # 🚨 MAKE FILENAME UNIQUE FOR TODAY
+        image_filename = f"{base_filename}-{date_str}.jpg"
 
         local_path = os.path.join(OUTPUT_DIR, "images", image_filename)
         os.makedirs(os.path.dirname(local_path), exist_ok=True)
 
         if not os.path.exists(local_path):
-            img_data = requests.get(img_url, headers=HEADERS, timeout=15)
+            img_data = requests.get(original_url, headers=HEADERS, timeout=15)
             img_data.raise_for_status()
             with open(local_path, "wb") as f:
                 f.write(img_data.content)
@@ -61,7 +67,7 @@ def download_comic_image():
         else:
             print(f"ℹ️ Image already exists: {local_path}")
 
-        return local_path, image_filename, img_url
+        return local_path, image_filename, original_url
 
     except Exception as e:
         print(f"❌ Failed to fetch comic: {e}")
@@ -73,36 +79,37 @@ def generate_html(date_str, image_filename, comic_url):
     page_url = f"{BASE_URL}/dilbert-{date_str}.html"
     image_url = f"{BASE_URL}/images/{image_filename}"
 
-    # Critical fix — force social media to refetch a fresh image
-    og_image_url = f"{image_url}?v={date_str.replace('-', '')}"
-
     html = f"""<!DOCTYPE html>
 <html lang="en" prefix="og: http://ogp.me/ns#">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <title>Dilbert for {date_str}</title>
 
-  <!-- Open Graph metadata -->
+  <!-- Open Graph -->
   <meta property="og:title" content="Dilbert for {date_str}" />
-  <meta property="og:description" content="View today's Dilbert comic." />
   <meta property="og:type" content="article" />
   <meta property="og:url" content="{page_url}" />
-  <meta property="og:image" content="{og_image_url}" />
+  <meta property="og:image" content="{image_url}" />
   <meta property="og:image:type" content="image/jpeg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:description" content="View today's Dilbert comic." />
+
+  <!-- Twitter / Slack -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Dilbert for {date_str}" />
-  <meta name="twitter:image" content="{og_image_url}" />
+  <meta name="twitter:description" content="View today's Dilbert comic." />
+  <meta name="twitter:image" content="{image_url}" />
 </head>
 <body>
   <h1>Dilbert for {date_str}</h1>
   <a href="{comic_url}" target="_blank">
-    <img src="{image_url}" alt="Dilbert comic for {date_str}" style="max-width:100%;" />
+    <img src="{image_url}" alt="Dilbert comic for {date_str}">
   </a>
 </body>
-</html>
-"""
+</html>"""
 
     with open(html_path, "w", encoding="utf-8") as f:
         f.write(html)
@@ -128,7 +135,7 @@ def main():
         generate_debug_html(logs)
         return
 
-    local_path, filename, original_url = download_comic_image()
+    local_path, filename, original_url = download_comic_image(today)
     if not local_path:
         logs.append("❌ Could not get new comic.")
         generate_debug_html(logs)
@@ -151,13 +158,15 @@ def main():
         description=f'<p>Dilbert comic for {today}.</p><img src="{image_url}" alt="Dilbert comic" />',
         unique_id=hashlib.md5(page_url.encode()).hexdigest(),
         pubdate=datetime.datetime.now(datetime.UTC),
-        enclosures=[
-            type(
-                "Enclosure",
-                (object,),
-                {"url": image_url, "length": str(file_size), "mime_type": "image/jpeg"},
-            )()
-        ],
+        enclosures=[type(
+            "Enclosure",
+            (object,),
+            {
+                "url": image_url,
+                "length": str(file_size),
+                "mime_type": "image/jpeg",
+            },
+        )()],
     )
 
     with open(os.path.join(OUTPUT_DIR, "dilbert-clean.xml"), "w", encoding="utf-8") as f:
