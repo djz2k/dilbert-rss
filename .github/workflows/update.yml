@@ -27,11 +27,6 @@ jobs:
           set -e
           python generate_feed.py
 
-      - name: Update index.html from latest comic
-        run: |
-          set -e
-          python generate_index_html.py
-
       - name: Commit and push updates
         run: |
           git config user.name "github-actions"
