@@ -11,12 +11,11 @@ from feedgenerator import Rss201rev2Feed
 BASE_URL = "https://djz2k.github.io/dilbert-rss"
 OUTPUT_DIR = "docs"
 USED_COMICS_FILE = "used_comics.json"
+FEED_FILE = os.path.join(OUTPUT_DIR, "dilbert-clean.xml")
 HEADERS = {"User-Agent": "Mozilla/5.0"}
-
 
 def get_today_date():
     return datetime.date.today().isoformat()
-
 
 def load_used_comics():
     if os.path.exists(USED_COMICS_FILE):
@@ -24,23 +23,13 @@ def load_used_comics():
             return set(json.load(f))
     return set()
 
-
 def save_used_comics(used):
     with open(USED_COMICS_FILE, "w") as f:
         json.dump(sorted(list(used)), f, indent=2)
 
-
 def download_comic_image(date_str):
-    """
-    Download Dilbert image and RENAME it so filename is UNIQUE PER DAY.
-    This is critical — Slack/Discord ignore ?v= cache busting.
-    """
     try:
-        response = requests.get(
-            "https://dilbert-viewer.herokuapp.com/random",
-            headers=HEADERS,
-            timeout=15,
-        )
+        response = requests.get("https://dilbert-viewer.herokuapp.com/random", headers=HEADERS, timeout=15)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, "html.parser")
 
@@ -51,8 +40,6 @@ def download_comic_image(date_str):
         original_url = img_tag["src"]
         base_filename = os.path.basename(original_url).split("?")[0]
         base_filename = os.path.splitext(base_filename)[0]
-
-        # 🚨 MAKE FILENAME UNIQUE FOR TODAY
         image_filename = f"{base_filename}-{date_str}.jpg"
 
         local_path = os.path.join(OUTPUT_DIR, "images", image_filename)
@@ -73,7 +60,6 @@ def download_comic_image(date_str):
         print(f"❌ Failed to fetch comic: {e}")
         return None, None, None
 
-
 def generate_html(date_str, image_filename, comic_url):
     html_path = os.path.join(OUTPUT_DIR, f"dilbert-{date_str}.html")
     page_url = f"{BASE_URL}/dilbert-{date_str}.html"
@@ -84,10 +70,7 @@ def generate_html(date_str, image_filename, comic_url):
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
   <title>Dilbert for {date_str}</title>
-
-  <!-- Open Graph -->
   <meta property="og:title" content="Dilbert for {date_str}" />
   <meta property="og:type" content="article" />
   <meta property="og:url" content="{page_url}" />
@@ -96,8 +79,6 @@ def generate_html(date_str, image_filename, comic_url):
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:description" content="View today's Dilbert comic." />
-
-  <!-- Twitter / Slack -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Dilbert for {date_str}" />
   <meta name="twitter:description" content="View today's Dilbert comic." />
@@ -114,8 +95,24 @@ def generate_html(date_str, image_filename, comic_url):
     with open(html_path, "w", encoding="utf-8") as f:
         f.write(html)
 
-    return page_url
+    return page_url, image_url
 
+def load_existing_feed_items():
+    if not os.path.exists(FEED_FILE):
+        return []
+    with open(FEED_FILE, "r", encoding="utf-8") as f:
+        return f.read()
+
+def generate_feed(existing_xml, new_item_xml):
+    # Merge new item into top of <channel>
+    split_marker = "<item>"
+    if split_marker not in existing_xml:
+        return new_item_xml  # fallback
+
+    parts = existing_xml.split(split_marker, 1)
+    header = parts[0]
+    rest = split_marker + parts[1]
+    return header + new_item_xml + "\n" + rest
 
 def generate_debug_html(logs):
     path = os.path.join(OUTPUT_DIR, "debug.html")
@@ -123,7 +120,6 @@ def generate_debug_html(logs):
         f.write("<html><body><h1>Debug Output</h1><pre>\n")
         f.write("\n".join(logs))
         f.write("\n</pre></body></html>")
-
 
 def main():
     today = get_today_date()
@@ -141,15 +137,15 @@ def main():
         generate_debug_html(logs)
         return
 
-    page_url = generate_html(today, filename, original_url)
-    image_url = f"{BASE_URL}/images/{filename}"
+    page_url, image_url = generate_html(today, filename, original_url)
     file_size = os.path.getsize(local_path)
 
+    # New feed item only
     feed = Rss201rev2Feed(
         title="Daily Dilbert",
-        link=f"{BASE_URL}/dilbert-clean.xml",
+        link=f"{BASE_URL}/index.html",
         description="Unofficial Dilbert feed with full comic previews.",
-        language="en",
+        language="en"
     )
 
     feed.add_item(
@@ -158,23 +154,29 @@ def main():
         description=f'<p>Dilbert comic for {today}.</p><img src="{image_url}" alt="Dilbert comic" />',
         unique_id=hashlib.md5(page_url.encode()).hexdigest(),
         pubdate=datetime.datetime.now(datetime.UTC),
-        enclosures=[type(
-            "Enclosure",
-            (object,),
-            {
-                "url": image_url,
-                "length": str(file_size),
-                "mime_type": "image/jpeg",
-            },
-        )()],
+        enclosures=[type("Enclosure", (object,), {
+            "url": image_url,
+            "length": str(file_size),
+            "mime_type": "image/jpeg"
+        })()]
     )
 
-    with open(os.path.join(OUTPUT_DIR, "dilbert-clean.xml"), "w", encoding="utf-8") as f:
-        feed.write(f, "utf-8")
+    from io import StringIO
+    buf = StringIO()
+    feed.write(buf, "utf-8")
+    new_feed_item = buf.getvalue()
+
+    if os.path.exists(FEED_FILE):
+        existing = load_existing_feed_items()
+        combined = generate_feed(existing, new_feed_item.split("<item>", 1)[1])
+    else:
+        combined = new_feed_item
+
+    with open(FEED_FILE, "w", encoding="utf-8") as f:
+        f.write(combined)
 
     with open(os.path.join(OUTPUT_DIR, "index.html"), "w", encoding="utf-8") as f:
-        f.write(
-            f"""<!DOCTYPE html>
+        f.write(f"""<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
@@ -185,8 +187,7 @@ def main():
   <p>Latest comic: <a href="{page_url}">{page_url}</a></p>
   <p><a href="dilbert-clean.xml">RSS Feed</a></p>
 </body>
-</html>"""
-        )
+</html>""")
 
     used_comics.add(today)
     save_used_comics(used_comics)
@@ -194,7 +195,6 @@ def main():
     logs.append(f"✅ Comic generated: {filename}")
     generate_debug_html(logs)
     print("\n".join(logs))
-
 
 if __name__ == "__main__":
     main()
