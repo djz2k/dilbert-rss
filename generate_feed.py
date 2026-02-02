@@ -11,7 +11,6 @@ from feedgenerator import Rss201rev2Feed
 BASE_URL = "https://djz2k.github.io/dilbert-rss"
 OUTPUT_DIR = "docs"
 USED_COMICS_FILE = "used_comics.json"
-FEED_FILE = os.path.join(OUTPUT_DIR, "dilbert-clean.xml")
 HEADERS = {"User-Agent": "Mozilla/5.0"}
 
 def get_today_date():
@@ -95,57 +94,30 @@ def generate_html(date_str, image_filename, comic_url):
     with open(html_path, "w", encoding="utf-8") as f:
         f.write(html)
 
-    return page_url, image_url
-
-def load_existing_feed_items():
-    if not os.path.exists(FEED_FILE):
-        return []
-    with open(FEED_FILE, "r", encoding="utf-8") as f:
-        return f.read()
-
-def generate_feed(existing_xml, new_item_xml):
-    # Merge new item into top of <channel>
-    split_marker = "<item>"
-    if split_marker not in existing_xml:
-        return new_item_xml  # fallback
-
-    parts = existing_xml.split(split_marker, 1)
-    header = parts[0]
-    rest = split_marker + parts[1]
-    return header + new_item_xml + "\n" + rest
-
-def generate_debug_html(logs):
-    path = os.path.join(OUTPUT_DIR, "debug.html")
-    with open(path, "w", encoding="utf-8") as f:
-        f.write("<html><body><h1>Debug Output</h1><pre>\n")
-        f.write("\n".join(logs))
-        f.write("\n</pre></body></html>")
+    return page_url
 
 def main():
     today = get_today_date()
     used_comics = load_used_comics()
-    logs = [f"🕒 Running for {today}"]
 
     if today in used_comics:
-        logs.append("⚠️ Comic already used, skipping.")
-        generate_debug_html(logs)
+        print(f"⚠️ Comic for {today} already used.")
         return
 
     local_path, filename, original_url = download_comic_image(today)
     if not local_path:
-        logs.append("❌ Could not get new comic.")
-        generate_debug_html(logs)
+        print(f"❌ Could not fetch comic.")
         return
 
-    page_url, image_url = generate_html(today, filename, original_url)
+    image_url = f"{BASE_URL}/images/{filename}"
+    page_url = generate_html(today, filename, original_url)
     file_size = os.path.getsize(local_path)
 
-    # New feed item only
     feed = Rss201rev2Feed(
         title="Daily Dilbert",
-        link=f"{BASE_URL}/index.html",
+        link=f"{BASE_URL}/dilbert-clean.xml",
         description="Unofficial Dilbert feed with full comic previews.",
-        language="en"
+        language="en",
     )
 
     feed.add_item(
@@ -158,43 +130,27 @@ def main():
             "url": image_url,
             "length": str(file_size),
             "mime_type": "image/jpeg"
-        })()]
+        })()],
     )
 
-    from io import StringIO
-    buf = StringIO()
-    feed.write(buf, "utf-8")
-    new_feed_item = buf.getvalue()
+    with open(os.path.join(OUTPUT_DIR, "dilbert-clean.xml"), "w", encoding="utf-8") as f:
+        feed.write(f, "utf-8")
 
-    if os.path.exists(FEED_FILE):
-        existing = load_existing_feed_items()
-        combined = generate_feed(existing, new_feed_item.split("<item>", 1)[1])
-    else:
-        combined = new_feed_item
-
-    with open(FEED_FILE, "w", encoding="utf-8") as f:
-        f.write(combined)
-
+    # Index update
     with open(os.path.join(OUTPUT_DIR, "index.html"), "w", encoding="utf-8") as f:
         f.write(f"""<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>Daily Dilbert</title>
-</head>
+<html><head><meta charset="utf-8"><title>Daily Dilbert</title></head>
 <body>
-  <h1>Daily Dilbert RSS Feed</h1>
-  <p>Latest comic: <a href="{page_url}">{page_url}</a></p>
-  <p><a href="dilbert-clean.xml">RSS Feed</a></p>
-</body>
-</html>""")
+<h1>Daily Dilbert RSS Feed</h1>
+<p>Latest comic: <a href="{page_url}">{page_url}</a></p>
+<p><a href="dilbert-clean.xml">RSS Feed</a></p>
+</body></html>
+""")
 
     used_comics.add(today)
     save_used_comics(used_comics)
-
-    logs.append(f"✅ Comic generated: {filename}")
-    generate_debug_html(logs)
-    print("\n".join(logs))
+    print(f"✅ Comic generated: {filename}")
+    print(f"📦 RSS feed written with link: {page_url}")
 
 if __name__ == "__main__":
     main()
