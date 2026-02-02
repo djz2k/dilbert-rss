@@ -2,7 +2,7 @@ name: Daily Dilbert RSS Update
 
 on:
   schedule:
-    - cron: '0 14 * * *'  # 6am PT / 9am ET
+    - cron: '0 14 * * *'  # Every day at 14:00 UTC = 6am PT
   workflow_dispatch:
 
 jobs:
@@ -25,6 +25,7 @@ jobs:
       - name: Run feed generator
         run: |
           set -e
+          echo "📦 Starting Daily Dilbert feed generation..."
           python generate_feed.py
 
       - name: Commit and push updates
@@ -32,5 +33,5 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add docs/*.xml docs/*.html docs/images/* || true
-          git commit -m "Daily RSS update $(date -u +'%Y-%m-%d')" || echo "⚠️ No changes to commit"
+          git commit -m "Daily Dilbert update $(date -u +'%Y-%m-%d')" || echo "⚠️ No changes to commit"
           git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:main
