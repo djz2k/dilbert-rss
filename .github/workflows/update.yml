@@ -2,7 +2,7 @@ name: Daily Dilbert RSS Update
 
 on:
   schedule:
-    - cron: '0 14 * * *'  # Every day at 14:00 UTC = 6am PT
+    - cron: '0 14 * * *'
   workflow_dispatch:
 
 jobs:
