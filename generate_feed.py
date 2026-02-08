@@ -1,94 +1,129 @@
 import os
-import json
 import datetime
-import requests
+import feedparser
 from bs4 import BeautifulSoup
-from feedgenerator import Rss201rev2Feed
+import requests
+import json
 
-BASE_URL = "https://dilbert.com/"
-OUTPUT_DIR = "docs"
-USED_JSON_PATH = "used_comics.json"
+FEED_PATH = "docs/feed.xml"
+USED_COMICS_PATH = "used_comics.json"
+HTML_FOLDER = "docs"
+INDEX_PATH = os.path.join(HTML_FOLDER, "index.html")
 
-today = datetime.date.today()
-today_str = today.strftime("%Y-%m-%d")
-html_path = f"{OUTPUT_DIR}/dilbert-{today_str}.html"
-rss_path = f"{OUTPUT_DIR}/feed.xml"
-image_output_path = f"{OUTPUT_DIR}/images/dilbert-{today_str}.jpg"
+BASE_URL = "https://dilbert-viewer.herokuapp.com/random"
 
-# Load used comics
-if os.path.exists(USED_JSON_PATH):
-    with open(USED_JSON_PATH, "r") as f:
-        used_comics = json.load(f)
-else:
-    used_comics = {}
+def get_today_date():
+    return datetime.date.today().isoformat()
 
-# Skip if already fetched AND image exists
-if today_str in used_comics and os.path.exists(image_output_path):
-    print(f"✅ Comic already processed for {today_str}")
-    exit(0)
+def get_used_comics():
+    if os.path.exists(USED_COMICS_PATH):
+        with open(USED_COMICS_PATH, "r") as f:
+            return set(json.load(f))
+    return set()
 
-# Fetch Dilbert homepage
-response = requests.get(BASE_URL)
-soup = BeautifulSoup(response.text, "html.parser")
-img_tag = soup.select_one("img.img-comic")
+def save_used_comics(comics):
+    with open(USED_COMICS_PATH, "w") as f:
+        json.dump(sorted(comics), f)
 
-if not img_tag or not img_tag.get("src"):
-    print("❌ Comic image not found.")
-    exit(1)
+def fetch_comic_image_url():
+    try:
+        response = requests.get(BASE_URL, timeout=10)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, "html.parser")
+        img = soup.select_one("div[class*='ComicImage'] img")
+        return img["src"] if img else None
+    except Exception as e:
+        print(f"Error fetching comic image: {e}")
+        return None
 
-img_url = img_tag["src"]
-if img_url.startswith("//"):
-    img_url = "https:" + img_url
-
-# Download image
-img_data = requests.get(img_url).content
-os.makedirs(os.path.dirname(image_output_path), exist_ok=True)
-with open(image_output_path, "wb") as f:
-    f.write(img_data)
-print(f"📥 Downloaded image: {img_url}")
-
-# Save HTML page
-title = f"Dilbert for {today_str}"
-html_content = f"""<!DOCTYPE html>
-<html lang="en">
+def generate_html(date_str, image_url):
+    html_content = f"""<!DOCTYPE html>
+<html>
 <head>
   <meta charset="UTF-8">
-  <title>{title}</title>
-  <meta property="og:title" content="{title}">
-  <meta property="og:image" content="https://djz2k.github.io/dilbert-rss/images/dilbert-{today_str}.jpg">
-  <meta property="og:type" content="article">
+  <title>Dilbert for {date_str}</title>
+  <meta property="og:title" content="Dilbert for {date_str}" />
+  <meta property="og:image" content="{image_url}" />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://djz2k.github.io/dilbert-rss/dilbert-{date_str}.html" />
 </head>
 <body>
-  <h1>{title}</h1>
-  <img src="images/dilbert-{today_str}.jpg" alt="Dilbert comic for {today_str}">
+  <h1>Dilbert for {date_str}</h1>
+  <img src="{image_url}" alt="Dilbert comic for {date_str}" />
 </body>
 </html>
 """
-with open(html_path, "w") as f:
-    f.write(html_content)
-print(f"📝 Saved HTML to {html_path}")
+    html_path = os.path.join(HTML_FOLDER, f"dilbert-{date_str}.html")
+    with open(html_path, "w") as f:
+        f.write(html_content)
 
-# Update RSS feed
-feed = Rss201rev2Feed(
-    title="Daily Dilbert",
-    link="https://djz2k.github.io/dilbert-rss/",
-    description="View today’s Dilbert comic.",
-    language="en"
-)
+def update_index(date_str):
+    with open(INDEX_PATH, "w") as f:
+        f.write(f"""<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Refresh" content="0; url=dilbert-{date_str}.html" />
+</head>
+<body>
+  <p>Redirecting to <a href="dilbert-{date_str}.html">today's comic</a>.</p>
+</body>
+</html>
+""")
 
-feed.add_item(
-    title=title,
-    link=f"https://djz2k.github.io/dilbert-rss/dilbert-{today_str}.html",
-    description=title,
-    pubdate=datetime.datetime.utcnow()
-)
+def update_rss(date_str, image_url):
+    if os.path.exists(FEED_PATH):
+        feed = feedparser.parse(FEED_PATH)
+    else:
+        feed = {"entries": []}
 
-with open(rss_path, "w") as f:
-    feed.write(f, "utf-8")
-print(f"📡 Updated RSS feed at {rss_path}")
+    new_entry = f"""<item>
+  <title>Dilbert for {date_str}</title>
+  <link>https://djz2k.github.io/dilbert-rss/dilbert-{date_str}.html</link>
+  <description>&lt;img src="{image_url}" /&gt;</description>
+  <guid isPermaLink="false">{date_str}</guid>
+  <pubDate>{datetime.datetime.now().strftime("%a, %d %b %Y %H:%M:%S +0000")}</pubDate>
+</item>"""
 
-# Mark comic as used
-used_comics[today_str] = img_url
-with open(USED_JSON_PATH, "w") as f:
-    json.dump(used_comics, f, indent=2)
-print(f"✅ Marked {today_str} as used")
+    items = [new_entry]
+    for entry in feed.get("entries", [])[:29]:  # keep 30 max
+        items.append(entry.get("raw", ""))
+
+    rss = f"""<?xml version="1.0"?>
+<rss version="2.0">
+<channel>
+  <title>Daily Dilbert</title>
+  <link>https://djz2k.github.io/dilbert-rss/</link>
+  <description>Unofficial Dilbert RSS feed</description>
+  {''.join(items)}
+</channel>
+</rss>"""
+
+    with open(FEED_PATH, "w") as f:
+        f.write(rss)
+
+def main():
+    today = get_today_date()
+    used_comics = get_used_comics()
+
+    if today in used_comics:
+        print(f"✔️ Comic for {today} already processed.")
+        update_index(today)
+        return
+
+    print(f"🚀 Starting Daily Dilbert feed generation for {today}...")
+
+    image_url = fetch_comic_image_url()
+    if not image_url:
+        print(f"⚠️ Comic image not found for {today}. Skipping HTML + RSS.")
+        return
+
+    generate_html(today, image_url)
+    update_index(today)
+    update_rss(today, image_url)
+
+    used_comics.add(today)
+    save_used_comics(used_comics)
+    print(f"✅ Comic for {today} processed successfully.")
+
+if __name__ == "__main__":
+    main()
