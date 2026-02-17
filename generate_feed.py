@@ -127,7 +127,7 @@ def download_unique_comic(date_str, used_comics):
             print(f"  ⚠️ Comic {image_hash} already used, trying again...")
             continue
 
-        image_filename = f"{image_hash}-{date_str}.gif"
+        image_filename = f"{image_hash}.jpg"
         local_path, content_type, size = download_image(image_url, image_filename)
         if not local_path:
             continue
@@ -170,7 +170,6 @@ def generate_comic_html(date_str, image_filename, original_url):
   <meta property="og:type" content="article" />
   <meta property="og:url" content="{page_url}" />
   <meta property="og:image" content="{image_url}" />
-  <meta property="og:image:type" content="image/gif" />
   <meta property="og:image:width" content="900" />
   <meta property="og:image:height" content="280" />
   <meta property="og:description" content="View today's Dilbert comic." />
@@ -260,7 +259,7 @@ def generate_rss_feed(feed_items):
                     {
                         "url": image_full_url,
                         "length": str(item.get("size", 0)),
-                        "mime_type": item.get("mime_type", "image/gif"),
+                        "mime_type": item.get("mime_type", "image/jpeg"),
                     },
                 )()
             ],
@@ -298,6 +297,38 @@ def generate_debug_html(date_str, log_lines):
     print(f"  ✅ Debug page written: {debug_path}")
 
 
+def migrate_gif_to_jpg(feed_items):
+    """Rename .gif images to .jpg so GitHub Pages serves them as image/jpeg.
+    Social platform crawlers refuse to unfurl og:image when served as image/gif."""
+    migrated = 0
+    for item in feed_items:
+        old_filename = item["image_filename"]
+        if not old_filename.endswith(".gif"):
+            continue
+        new_filename = f"{item['image_hash']}.jpg"
+        old_path = os.path.join(IMAGES_DIR, old_filename)
+        new_path = os.path.join(IMAGES_DIR, new_filename)
+        if os.path.exists(old_path):
+            os.rename(old_path, new_path)
+            print(f"  🔄 Renamed {old_filename} → {new_filename}")
+        item["image_filename"] = new_filename
+        # Regenerate the HTML page with corrected og:image URL
+        date_str = item["date"]
+        html_path = os.path.join(OUTPUT_DIR, f"dilbert-{date_str}.html")
+        if os.path.exists(html_path):
+            with open(html_path, "r") as f:
+                html = f.read()
+            html = html.replace(old_filename, new_filename)
+            html = html.replace(
+                '<meta property="og:image:type" content="image/gif" />\n', ""
+            )
+            with open(html_path, "w") as f:
+                f.write(html)
+            print(f"  🔄 Updated HTML: dilbert-{date_str}.html")
+        migrated += 1
+    return migrated
+
+
 def main():
     today = get_today_date()
     log = []
@@ -313,6 +344,12 @@ def main():
     feed_items = load_feed_state()
     log.append(f"Loaded {len(used_comics)} used comic hashes")
     log.append(f"Loaded {len(feed_items)} existing feed items")
+
+    # Migrate any .gif filenames to .jpg for proper OG unfurling
+    migrated = migrate_gif_to_jpg(feed_items)
+    if migrated:
+        save_feed_state(feed_items)
+        log.append(f"Migrated {migrated} image(s) from .gif to .jpg")
 
     # Check if we already ran today
     if feed_items and feed_items[-1].get("date") == today:
