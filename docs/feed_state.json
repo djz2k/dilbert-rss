@@ -10,7 +10,7 @@
   {
     "date": "2026-02-10",
     "image_hash": "3a987050e7aa0137ce8e005056a9545d",
-    "image_filename": "3a987050e7aa0137ce8e005056a9545d-2026-02-10.gif",
+    "image_filename": "3a987050e7aa0137ce8e005056a9545d.jpg",
     "mime_type": "image/gif",
     "size": 128680,
     "pubdate": "2026-02-10T14:52:49.059467+00:00"
@@ -18,7 +18,7 @@
   {
     "date": "2026-02-11",
     "image_hash": "5bc9c8f0b5230130dfdb001dd8b71c47",
-    "image_filename": "5bc9c8f0b5230130dfdb001dd8b71c47-2026-02-11.gif",
+    "image_filename": "5bc9c8f0b5230130dfdb001dd8b71c47.jpg",
     "mime_type": "image/gif",
     "size": 134749,
     "pubdate": "2026-02-11T14:48:16.157427+00:00"
@@ -26,7 +26,7 @@
   {
     "date": "2026-02-12",
     "image_hash": "4aedd8f0a1be012f2fe600163e41dd5b",
-    "image_filename": "4aedd8f0a1be012f2fe600163e41dd5b-2026-02-12.gif",
+    "image_filename": "4aedd8f0a1be012f2fe600163e41dd5b.jpg",
     "mime_type": "image/gif",
     "size": 113708,
     "pubdate": "2026-02-12T14:43:10.216425+00:00"
@@ -34,7 +34,7 @@
   {
     "date": "2026-02-13",
     "image_hash": "2b336800b0f7012f2fef00163e41dd5b",
-    "image_filename": "2b336800b0f7012f2fef00163e41dd5b-2026-02-13.gif",
+    "image_filename": "2b336800b0f7012f2fef00163e41dd5b.jpg",
     "mime_type": "image/gif",
     "size": 64256,
     "pubdate": "2026-02-13T14:37:31.536005+00:00"
@@ -42,7 +42,7 @@
   {
     "date": "2026-02-14",
     "image_hash": "215538306cb901301d46001dd8b71c47",
-    "image_filename": "215538306cb901301d46001dd8b71c47-2026-02-14.gif",
+    "image_filename": "215538306cb901301d46001dd8b71c47.jpg",
     "mime_type": "image/gif",
     "size": 116616,
     "pubdate": "2026-02-14T14:21:11.477531+00:00"
@@ -50,7 +50,7 @@
   {
     "date": "2026-02-15",
     "image_hash": "082f2de0fb4e0132ee37005056a9545d",
-    "image_filename": "082f2de0fb4e0132ee37005056a9545d-2026-02-15.gif",
+    "image_filename": "082f2de0fb4e0132ee37005056a9545d.jpg",
     "mime_type": "image/gif",
     "size": 121516,
     "pubdate": "2026-02-15T14:21:51.675239+00:00"
@@ -58,7 +58,7 @@
   {
     "date": "2026-02-16",
     "image_hash": "700c6db06cbc01301d46001dd8b71c47",
-    "image_filename": "700c6db06cbc01301d46001dd8b71c47-2026-02-16.gif",
+    "image_filename": "700c6db06cbc01301d46001dd8b71c47.jpg",
     "mime_type": "image/gif",
     "size": 126671,
     "pubdate": "2026-02-16T14:37:48.388507+00:00"
@@ -66,9 +66,17 @@
   {
     "date": "2026-02-17",
     "image_hash": "42fe60409dd8012f2fe500163e41dd5b",
-    "image_filename": "42fe60409dd8012f2fe500163e41dd5b-2026-02-17.gif",
+    "image_filename": "42fe60409dd8012f2fe500163e41dd5b.jpg",
     "mime_type": "image/gif",
     "size": 144799,
     "pubdate": "2026-02-17T14:40:36.642635+00:00"
+  },
+  {
+    "date": "2026-02-18",
+    "image_hash": "8b8f94406cbb01301d46001dd8b71c47",
+    "image_filename": "8b8f94406cbb01301d46001dd8b71c47.jpg",
+    "mime_type": "image/gif",
+    "size": 121517,
+    "pubdate": "2026-02-18T14:39:41.920504+00:00"
   }
 ]
