@@ -161,29 +161,20 @@ def generate_comic_html(date_str, image_filename, original_url):
     image_url = f"{BASE_URL}/images/{image_filename}"
 
     html = f"""<!DOCTYPE html>
-<html lang="en" prefix="og: http://ogp.me/ns#">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dilbert for {date_str}</title>
   <meta property="og:title" content="Dilbert for {date_str}" />
   <meta property="og:type" content="article" />
   <meta property="og:url" content="{page_url}" />
   <meta property="og:image" content="{image_url}" />
-  <meta property="og:image:width" content="900" />
-  <meta property="og:image:height" content="280" />
   <meta property="og:description" content="View today's Dilbert comic." />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Dilbert for {date_str}" />
-  <meta name="twitter:description" content="View today's Dilbert comic." />
-  <meta name="twitter:image" content="{image_url}" />
 </head>
 <body>
   <h1>Dilbert for {date_str}</h1>
-  <a href="{original_url}" target="_blank">
-    <img src="{image_url}" alt="Dilbert comic for {date_str}" style="max-width:100%;">
-  </a>
-  <p><a href="dilbert-clean.xml">RSS Feed</a> | <a href="index.html">Home</a></p>
+  <a href="{original_url}" target="_blank"><img src="{image_url}" alt="Dilbert comic for {date_str}"></a>
 </body>
 </html>"""
 
@@ -297,34 +288,58 @@ def generate_debug_html(date_str, log_lines):
     print(f"  ✅ Debug page written: {debug_path}")
 
 
-def migrate_gif_to_jpg(feed_items):
-    """Rename .gif images to .jpg so GitHub Pages serves them as image/jpeg.
-    Social platform crawlers refuse to unfurl og:image when served as image/gif."""
+def migrate_feed_items(feed_items):
+    """Fix image filenames and regenerate HTML pages for proper OG unfurling."""
     migrated = 0
     for item in feed_items:
         old_filename = item["image_filename"]
-        if not old_filename.endswith(".gif"):
-            continue
         new_filename = f"{item['image_hash']}.jpg"
-        old_path = os.path.join(IMAGES_DIR, old_filename)
-        new_path = os.path.join(IMAGES_DIR, new_filename)
-        if os.path.exists(old_path):
-            os.rename(old_path, new_path)
-            print(f"  🔄 Renamed {old_filename} → {new_filename}")
-        item["image_filename"] = new_filename
-        # Regenerate the HTML page with corrected og:image URL
+        if old_filename == new_filename:
+            # Already migrated, but still regenerate the HTML page
+            # in case the template changed
+            pass
+        else:
+            # Rename image file from old name to new name
+            old_path = os.path.join(IMAGES_DIR, old_filename)
+            new_path = os.path.join(IMAGES_DIR, new_filename)
+            if os.path.exists(old_path):
+                os.rename(old_path, new_path)
+                print(f"  🔄 Renamed {old_filename} → {new_filename}")
+            item["image_filename"] = new_filename
+
+        # Regenerate the HTML page with the canonical minimal template
         date_str = item["date"]
+        page_url = f"{BASE_URL}/dilbert-{date_str}.html"
+        image_url = f"{BASE_URL}/images/{new_filename}"
         html_path = os.path.join(OUTPUT_DIR, f"dilbert-{date_str}.html")
         if os.path.exists(html_path):
+            # Read existing page to extract the original comic link
             with open(html_path, "r") as f:
-                html = f.read()
-            html = html.replace(old_filename, new_filename)
-            html = html.replace(
-                '<meta property="og:image:type" content="image/gif" />\n', ""
-            )
+                old_html = f.read()
+            # Extract original_url from existing href
+            m = re.search(r'<a href="([^"]+)" target="_blank">', old_html)
+            original_url = m.group(1) if m else "#"
+
+            html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dilbert for {date_str}</title>
+  <meta property="og:title" content="Dilbert for {date_str}" />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="{page_url}" />
+  <meta property="og:image" content="{image_url}" />
+  <meta property="og:description" content="View today's Dilbert comic." />
+  <meta name="twitter:card" content="summary_large_image" />
+</head>
+<body>
+  <h1>Dilbert for {date_str}</h1>
+  <a href="{original_url}" target="_blank"><img src="{image_url}" alt="Dilbert comic for {date_str}"></a>
+</body>
+</html>"""
             with open(html_path, "w") as f:
                 f.write(html)
-            print(f"  🔄 Updated HTML: dilbert-{date_str}.html")
+            print(f"  🔄 Regenerated HTML: dilbert-{date_str}.html")
         migrated += 1
     return migrated
 
@@ -345,11 +360,11 @@ def main():
     log.append(f"Loaded {len(used_comics)} used comic hashes")
     log.append(f"Loaded {len(feed_items)} existing feed items")
 
-    # Migrate any .gif filenames to .jpg for proper OG unfurling
-    migrated = migrate_gif_to_jpg(feed_items)
+    # Migrate image filenames and regenerate HTML pages for proper OG unfurling
+    migrated = migrate_feed_items(feed_items)
     if migrated:
         save_feed_state(feed_items)
-        log.append(f"Migrated {migrated} image(s) from .gif to .jpg")
+        log.append(f"Migrated {migrated} feed item(s)")
 
     # Check if we already ran today
     if feed_items and feed_items[-1].get("date") == today:
