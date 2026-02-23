@@ -83,7 +83,7 @@
     "date": "2026-02-19",
     "image_hash": "472d16409fa7012f2fe600163e41dd5b",
     "image_filename": "472d16409fa7012f2fe600163e41dd5b.jpg",
-    "mime_type": "image/gif",
+    "mime_type": "image/jpeg",
     "size": 67457,
     "pubdate": "2026-02-19T14:42:43.005083+00:00"
   },
@@ -91,7 +91,7 @@
     "date": "2026-02-20",
     "image_hash": "2b94d50051cd013bd246005056a9545d",
     "image_filename": "2b94d50051cd013bd246005056a9545d.jpg",
-    "mime_type": "image/gif",
+    "mime_type": "image/jpeg",
     "size": 113087,
     "pubdate": "2026-02-20T14:36:42.097381+00:00"
   },
@@ -99,8 +99,16 @@
     "date": "2026-02-22",
     "image_hash": "a1ab8090213c0135b944005056a9545d",
     "image_filename": "a1ab8090213c0135b944005056a9545d.jpg",
-    "mime_type": "image/gif",
+    "mime_type": "image/jpeg",
     "size": 122599,
     "pubdate": "2026-02-22T14:21:28.576045+00:00"
+  },
+  {
+    "date": "2026-02-23",
+    "image_hash": "1c35e7709d28012f2fe500163e41dd5b",
+    "image_filename": "1c35e7709d28012f2fe500163e41dd5b.jpg",
+    "mime_type": "image/jpeg",
+    "size": 155803,
+    "pubdate": "2026-02-23T14:41:22.001628+00:00"
   }
 ]
