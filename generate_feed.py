@@ -132,20 +132,12 @@ def download_unique_comic(date_str, used_comics):
         if not local_path:
             continue
 
-        # Determine MIME type from actual content-type header
-        if "gif" in (content_type or ""):
-            mime_type = "image/gif"
-        elif "png" in (content_type or ""):
-            mime_type = "image/png"
-        else:
-            mime_type = "image/jpeg"
-
         return {
             "image_hash": image_hash,
             "image_filename": image_filename,
             "local_path": local_path,
             "image_url": image_url,
-            "mime_type": mime_type,
+            "mime_type": "image/jpeg",
             "size": size,
         }
 
@@ -294,9 +286,9 @@ def migrate_feed_items(feed_items):
     for item in feed_items:
         old_filename = item["image_filename"]
         new_filename = f"{item['image_hash']}.jpg"
+        # Fix mime_type to match .jpg extension (avoids enclosure type mismatch)
+        item["mime_type"] = "image/jpeg"
         if old_filename == new_filename:
-            # Already migrated, but still regenerate the HTML page
-            # in case the template changed
             pass
         else:
             # Rename image file from old name to new name
