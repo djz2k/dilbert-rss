@@ -110,5 +110,13 @@
     "mime_type": "image/jpeg",
     "size": 155803,
     "pubdate": "2026-02-23T14:41:22.001628+00:00"
+  },
+  {
+    "date": "2026-02-24",
+    "image_hash": "87bb65b09955012f2fe400163e41dd5b",
+    "image_filename": "87bb65b09955012f2fe400163e41dd5b.jpg",
+    "mime_type": "image/jpeg",
+    "size": 117702,
+    "pubdate": "2026-02-24T14:45:29.437658+00:00"
   }
 ]
