@@ -4,8 +4,8 @@ import json
 import hashlib
 import datetime
 import requests
+import xml.etree.ElementTree as ET
 from bs4 import BeautifulSoup
-from feedgenerator import Rss201rev2Feed
 
 BASE_URL = "https://djz2k.github.io/dilbert-rss"
 OUTPUT_DIR = "docs"
@@ -183,7 +183,7 @@ def generate_index_html(date_str, image_filename):
     index_path = os.path.join(OUTPUT_DIR, "index.html")
 
     html = f"""<!DOCTYPE html>
-<html lang="en" prefix="og: http://ogp.me/ns#">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -194,8 +194,6 @@ def generate_index_html(date_str, image_filename):
   <meta property="og:image" content="{image_url}" />
   <meta property="og:description" content="A daily-updating feed of Dilbert comics." />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Daily Dilbert" />
-  <meta name="twitter:image" content="{image_url}" />
 </head>
 <body>
   <h1>Daily Dilbert RSS Feed</h1>
@@ -211,47 +209,64 @@ def generate_index_html(date_str, image_filename):
 
 
 def generate_rss_feed(feed_items):
-    """Build the RSS feed from the accumulated feed items list."""
-    feed = Rss201rev2Feed(
-        title="Daily Dilbert",
-        link=f"{BASE_URL}/dilbert-clean.xml",
-        description="Unofficial Dilbert feed with full comic previews.",
-        language="en",
+    """Build the RSS feed from the accumulated feed items list using ElementTree.
+
+    Produces clean RSS 2.0 XML with no extra namespaces, matching the
+    structure used by the working calvin-rss and cnh-rss projects.
+    """
+    items_to_write = feed_items[-FEED_MAX_ITEMS:]
+
+    # Determine lastBuildDate from the newest item
+    if items_to_write:
+        last_pub = datetime.datetime.fromisoformat(items_to_write[-1]["pubdate"])
+    else:
+        last_pub = datetime.datetime.now(datetime.timezone.utc)
+    last_build_str = last_pub.strftime("%a, %d %b %Y %H:%M:%S %z")
+
+    # Build the RSS tree
+    rss = ET.Element("rss", version="2.0")
+    channel = ET.SubElement(rss, "channel")
+
+    ET.SubElement(channel, "title").text = "Daily Dilbert"
+    ET.SubElement(channel, "link").text = f"{BASE_URL}/dilbert-clean.xml"
+    ET.SubElement(channel, "description").text = (
+        "Unofficial Dilbert feed with full comic previews."
     )
+    ET.SubElement(channel, "language").text = "en-us"
+    ET.SubElement(channel, "pubDate").text = last_build_str
+    ET.SubElement(channel, "lastBuildDate").text = last_build_str
 
-    for item in reversed(feed_items[-FEED_MAX_ITEMS:]):
-        image_full_url = f"{BASE_URL}/images/{item['image_filename']}"
-        page_url = f"{BASE_URL}/dilbert-{item['date']}.html"
+    # Add items newest-first (reversed) like calvin-rss
+    for item_data in reversed(items_to_write):
+        image_full_url = f"{BASE_URL}/images/{item_data['image_filename']}"
+        page_url = f"{BASE_URL}/dilbert-{item_data['date']}.html"
+        pub_dt = datetime.datetime.fromisoformat(item_data["pubdate"])
+        pub_date_str = pub_dt.strftime("%a, %d %b %Y %H:%M:%S %z")
 
-        feed.add_item(
-            title=f"Dilbert for {item['date']}",
-            link=page_url,
-            description=(
-                f'<p>Dilbert comic for {item["date"]}.</p>'
-                f'<img src="{image_full_url}" alt="Dilbert comic" '
-                f'style="max-width:100%;" />'
-            ),
-            unique_id=hashlib.md5(
-                f"{page_url}-{item['image_hash']}".encode()
-            ).hexdigest(),
-            pubdate=datetime.datetime.fromisoformat(item["pubdate"]),
-            enclosures=[
-                type(
-                    "Enclosure",
-                    (object,),
-                    {
-                        "url": image_full_url,
-                        "length": str(item.get("size", 0)),
-                        "mime_type": item.get("mime_type", "image/jpeg"),
-                    },
-                )()
-            ],
+        item = ET.SubElement(channel, "item")
+        ET.SubElement(item, "title").text = f"Dilbert for {item_data['date']}"
+        ET.SubElement(item, "link").text = page_url
+        # Use the page URL as GUID (isPermaLink defaults to true, which is correct)
+        ET.SubElement(item, "guid").text = page_url
+        ET.SubElement(item, "pubDate").text = pub_date_str
+        ET.SubElement(item, "description").text = (
+            f'<![CDATA[<p>Dilbert comic for {item_data["date"]}.</p>'
+            f'<img src="{image_full_url}" alt="Dilbert comic" />]]>'
+        )
+        ET.SubElement(
+            item,
+            "enclosure",
+            attrib={
+                "url": image_full_url,
+                "type": item_data.get("mime_type", "image/jpeg"),
+            },
         )
 
     feed_path = os.path.join(OUTPUT_DIR, "dilbert-clean.xml")
-    with open(feed_path, "w", encoding="utf-8") as f:
-        feed.write(f, "utf-8")
-    print(f"  ✅ RSS feed written with {min(len(feed_items), FEED_MAX_ITEMS)} items")
+    tree = ET.ElementTree(rss)
+    ET.indent(tree, space="  ", level=0)
+    tree.write(feed_path, encoding="utf-8", xml_declaration=True)
+    print(f"  ✅ RSS feed written with {len(items_to_write)} items")
 
 
 def generate_debug_html(date_str, log_lines):

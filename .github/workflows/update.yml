@@ -5,22 +5,28 @@ on:
     - cron: '0 14 * * *'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |
-          pip install requests beautifulsoup4 feedgenerator
+          python -m pip install --upgrade pip
+          pip install requests beautifulsoup4
 
       - name: Run feed generator
         run: |
@@ -28,10 +34,13 @@ jobs:
           echo "📦 Starting Daily Dilbert feed generation..."
           python generate_feed.py
 
+      - name: Ensure .nojekyll exists
+        run: touch docs/.nojekyll
+
       - name: Commit and push updates
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add docs/*.xml docs/*.html docs/*.json docs/images/* used_comics.json || true
+          git add docs/*.xml docs/*.html docs/*.json docs/images/* docs/.nojekyll used_comics.json || true
           git commit -m "Daily Dilbert update $(date -u +'%Y-%m-%d')" || echo "⚠️ No changes to commit"
-          git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:main
+          git push
