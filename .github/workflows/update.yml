@@ -15,8 +15,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GH_PAT }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -43,4 +41,4 @@ jobs:
           git config user.email "actions@github.com"
           git add docs/*.xml docs/*.html docs/*.json docs/images/* docs/.nojekyll used_comics.json || true
           git commit -m "Daily Dilbert update $(date -u +'%Y-%m-%d')" || echo "⚠️ No changes to commit"
-          git push
+          git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:main
