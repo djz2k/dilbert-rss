@@ -21,6 +21,21 @@ def get_today_date():
     return datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")
 
 
+def detect_image_type(data):
+    """Detect actual image type from file magic bytes.
+
+    Returns (extension, mime_type) based on the first few bytes.
+    """
+    if data[:6] in (b"GIF87a", b"GIF89a"):
+        return ".gif", "image/gif"
+    if data[:3] == b"\xff\xd8\xff":
+        return ".jpg", "image/jpeg"
+    if data[:8] == b"\x89PNG\r\n\x1a\n":
+        return ".png", "image/png"
+    # Default to gif since that's what the source overwhelmingly provides
+    return ".gif", "image/gif"
+
+
 def load_used_comics():
     """Load the set of image hashes that have already been used."""
     if os.path.exists(USED_COMICS_FILE):
@@ -86,30 +101,37 @@ def get_image_hash(image_url):
     return os.path.basename(image_url).split("?")[0]
 
 
-def download_image(image_url, image_filename):
-    """Download an image and return the local path, or None on failure."""
-    local_path = os.path.join(IMAGES_DIR, image_filename)
+def download_image(image_url, image_hash):
+    """Download an image, detect its type, save with correct extension.
+
+    Returns (local_path, image_filename, mime_type, size) or Nones on failure.
+    """
     os.makedirs(IMAGES_DIR, exist_ok=True)
 
     try:
         img_response = requests.get(image_url, headers=HEADERS, timeout=15)
         img_response.raise_for_status()
 
-        content_type = img_response.headers.get("Content-Type", "image/jpeg")
-        size = len(img_response.content)
+        data = img_response.content
+        size = len(data)
 
         if size < 1000:
             print(f"  ⚠️ Image too small ({size} bytes), likely broken")
-            return None, None, None
+            return None, None, None, None
+
+        # Detect actual image type from file content
+        ext, mime_type = detect_image_type(data)
+        image_filename = f"{image_hash}{ext}"
+        local_path = os.path.join(IMAGES_DIR, image_filename)
 
         with open(local_path, "wb") as f:
-            f.write(img_response.content)
+            f.write(data)
 
-        print(f"  ✅ Downloaded image: {local_path} ({size} bytes, {content_type})")
-        return local_path, content_type, size
+        print(f"  ✅ Downloaded image: {local_path} ({size} bytes, {mime_type})")
+        return local_path, image_filename, mime_type, size
     except Exception as e:
         print(f"  ❌ Error downloading image: {e}")
-        return None, None, None
+        return None, None, None, None
 
 
 def download_unique_comic(date_str, used_comics):
@@ -127,8 +149,9 @@ def download_unique_comic(date_str, used_comics):
             print(f"  ⚠️ Comic {image_hash} already used, trying again...")
             continue
 
-        image_filename = f"{image_hash}.jpg"
-        local_path, content_type, size = download_image(image_url, image_filename)
+        local_path, image_filename, mime_type, size = download_image(
+            image_url, image_hash
+        )
         if not local_path:
             continue
 
@@ -137,7 +160,7 @@ def download_unique_comic(date_str, used_comics):
             "image_filename": image_filename,
             "local_path": local_path,
             "image_url": image_url,
-            "mime_type": "image/jpeg",
+            "mime_type": mime_type,
             "size": size,
         }
 
@@ -258,7 +281,7 @@ def generate_rss_feed(feed_items):
             "enclosure",
             attrib={
                 "url": image_full_url,
-                "type": item_data.get("mime_type", "image/jpeg"),
+                "type": item_data.get("mime_type", "image/gif"),
             },
         )
 
@@ -296,25 +319,44 @@ def generate_debug_html(date_str, log_lines):
 
 
 def migrate_feed_items(feed_items):
-    """Fix image filenames and regenerate HTML pages for proper OG unfurling."""
+    """Fix image filenames to match actual content type and regenerate HTML pages."""
     migrated = 0
     for item in feed_items:
         old_filename = item["image_filename"]
-        new_filename = f"{item['image_hash']}.jpg"
-        # Fix mime_type to match .jpg extension (avoids enclosure type mismatch)
-        item["mime_type"] = "image/jpeg"
-        if old_filename == new_filename:
-            pass
-        else:
-            # Rename image file from old name to new name
-            old_path = os.path.join(IMAGES_DIR, old_filename)
-            new_path = os.path.join(IMAGES_DIR, new_filename)
-            if os.path.exists(old_path):
-                os.rename(old_path, new_path)
-                print(f"  🔄 Renamed {old_filename} → {new_filename}")
-            item["image_filename"] = new_filename
+        image_hash = item["image_hash"]
 
-        # Regenerate the HTML page with the canonical minimal template
+        # Detect actual image type from file content
+        old_path = os.path.join(IMAGES_DIR, old_filename)
+        if os.path.exists(old_path):
+            with open(old_path, "rb") as f:
+                magic = f.read(8)
+            ext, mime_type = detect_image_type(magic)
+        else:
+            # File missing — try alternative extensions
+            for try_ext in (".gif", ".jpg", ".png"):
+                alt_path = os.path.join(IMAGES_DIR, f"{image_hash}{try_ext}")
+                if os.path.exists(alt_path):
+                    with open(alt_path, "rb") as f:
+                        magic = f.read(8)
+                    ext, mime_type = detect_image_type(magic)
+                    old_path = alt_path
+                    old_filename = f"{image_hash}{try_ext}"
+                    break
+            else:
+                print(f"  ⚠️ Image file missing for {image_hash}, skipping")
+                continue
+
+        new_filename = f"{image_hash}{ext}"
+        item["mime_type"] = mime_type
+        item["image_filename"] = new_filename
+
+        # Rename file if extension changed
+        if old_filename != new_filename:
+            new_path = os.path.join(IMAGES_DIR, new_filename)
+            os.rename(old_path, new_path)
+            print(f"  🔄 Renamed {old_filename} → {new_filename} ({mime_type})")
+
+        # Regenerate the HTML page with the correct image URL
         date_str = item["date"]
         page_url = f"{BASE_URL}/dilbert-{date_str}.html"
         image_url = f"{BASE_URL}/images/{new_filename}"
@@ -367,7 +409,7 @@ def main():
     log.append(f"Loaded {len(used_comics)} used comic hashes")
     log.append(f"Loaded {len(feed_items)} existing feed items")
 
-    # Migrate image filenames and regenerate HTML pages for proper OG unfurling
+    # Migrate image filenames to match actual content type
     migrated = migrate_feed_items(feed_items)
     if migrated:
         save_feed_state(feed_items)
@@ -392,7 +434,9 @@ def main():
         log.append(f"MIME type: {comic['mime_type']}, Size: {comic['size']} bytes")
 
         # Generate the dated HTML page
-        page_url = generate_comic_html(today, comic["image_filename"], comic["image_url"])
+        page_url = generate_comic_html(
+            today, comic["image_filename"], comic["image_url"]
+        )
 
         # Add to feed items
         new_item = {
