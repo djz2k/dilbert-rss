@@ -134,5 +134,13 @@
     "mime_type": "image/gif",
     "size": 117925,
     "pubdate": "2026-02-28T03:28:10.204216+00:00"
+  },
+  {
+    "date": "2026-03-01",
+    "image_hash": "fd56d6706cb801301d46001dd8b71c47",
+    "image_filename": "fd56d6706cb801301d46001dd8b71c47.gif",
+    "mime_type": "image/gif",
+    "size": 104253,
+    "pubdate": "2026-03-01T14:19:31.718412+00:00"
   }
 ]
