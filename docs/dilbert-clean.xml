@@ -5,8 +5,16 @@
     <link>https://djz2k.github.io/dilbert-rss/dilbert-clean.xml</link>
     <description>Unofficial Dilbert feed with full comic previews.</description>
     <language>en-us</language>
-    <pubDate>Sun, 01 Mar 2026 14:19:31 +0000</pubDate>
-    <lastBuildDate>Sun, 01 Mar 2026 14:19:31 +0000</lastBuildDate>
+    <pubDate>Mon, 02 Mar 2026 14:39:15 +0000</pubDate>
+    <lastBuildDate>Mon, 02 Mar 2026 14:39:15 +0000</lastBuildDate>
+    <item>
+      <title>Dilbert for 2026-03-02</title>
+      <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-03-02.html</link>
+      <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-03-02.html</guid>
+      <pubDate>Mon, 02 Mar 2026 14:39:15 +0000</pubDate>
+      <description>&lt;![CDATA[&lt;p&gt;Dilbert comic for 2026-03-02.&lt;/p&gt;&lt;img src="https://djz2k.github.io/dilbert-rss/images/c1e6d4e0e5db013005ca001dd8b71c47.gif" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <enclosure url="https://djz2k.github.io/dilbert-rss/images/c1e6d4e0e5db013005ca001dd8b71c47.gif" type="image/gif" />
+    </item>
     <item>
       <title>Dilbert for 2026-03-01</title>
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-03-01.html</link>
