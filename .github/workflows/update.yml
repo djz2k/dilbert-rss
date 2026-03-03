@@ -27,10 +27,7 @@ jobs:
           pip install requests beautifulsoup4
 
       - name: Run feed generator
-        run: |
-          set -e
-          echo "📦 Starting Daily Dilbert feed generation..."
-          python generate_feed.py
+        run: python generate_feed.py
 
       - name: Ensure .nojekyll exists
         run: touch docs/.nojekyll
@@ -39,6 +36,6 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add docs/*.xml docs/*.html docs/*.json docs/images/* docs/.nojekyll used_comics.json || true
-          git commit -m "Daily Dilbert update $(date -u +'%Y-%m-%d')" || echo "⚠️ No changes to commit"
+          git add docs/*.xml docs/*.html docs/.nojekyll used_comics.json || true
+          git commit -m "Daily Dilbert update $(date -u +'%Y-%m-%d')" || echo "No changes to commit"
           git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:main
