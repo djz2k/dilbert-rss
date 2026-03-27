@@ -5,8 +5,16 @@
     <link>https://djz2k.github.io/dilbert-rss/dilbert-clean.xml</link>
     <description>A daily classic Dilbert comic strip</description>
     <language>en-us</language>
-    <pubDate>Thu, 26 Mar 2026 14:58:07 +0000</pubDate>
-    <lastBuildDate>Thu, 26 Mar 2026 14:58:07 +0000</lastBuildDate>
+    <pubDate>Fri, 27 Mar 2026 14:45:07 +0000</pubDate>
+    <lastBuildDate>Fri, 27 Mar 2026 14:45:07 +0000</lastBuildDate>
+    <item>
+      <title>Dilbert for 2026-03-27</title>
+      <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-03-27.html</link>
+      <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-03-27.html</guid>
+      <pubDate>Fri, 27 Mar 2026 14:45:07 +0000</pubDate>
+      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230303031833im_/https://assets.amuniversal.com/c6f821d09f79012f2fe600163e41dd5b" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <enclosure url="https://web.archive.org/web/20230303031833im_/https://assets.amuniversal.com/c6f821d09f79012f2fe600163e41dd5b" type="image/gif" />
+    </item>
     <item>
       <title>Dilbert for 2026-03-26</title>
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-03-26.html</link>
