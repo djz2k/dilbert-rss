@@ -5,8 +5,16 @@
     <link>https://djz2k.github.io/dilbert-rss/dilbert-clean.xml</link>
     <description>A daily classic Dilbert comic strip</description>
     <language>en-us</language>
-    <pubDate>Sat, 18 Apr 2026 14:36:08 +0000</pubDate>
-    <lastBuildDate>Sat, 18 Apr 2026 14:36:08 +0000</lastBuildDate>
+    <pubDate>Sun, 19 Apr 2026 14:37:07 +0000</pubDate>
+    <lastBuildDate>Sun, 19 Apr 2026 14:37:07 +0000</lastBuildDate>
+    <item>
+      <title>Dilbert for 2026-04-19</title>
+      <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-04-19.html</link>
+      <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-04-19.html</guid>
+      <pubDate>Sun, 19 Apr 2026 14:37:07 +0000</pubDate>
+      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230303040523im_/https://assets.amuniversal.com/adbf70a0b0d5012f2fef00163e41dd5b" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <enclosure url="https://web.archive.org/web/20230303040523im_/https://assets.amuniversal.com/adbf70a0b0d5012f2fef00163e41dd5b" type="image/gif" />
+    </item>
     <item>
       <title>Dilbert for 2026-04-18</title>
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-04-18.html</link>
@@ -398,14 +406,6 @@
       <pubDate>Sun, 01 Mar 2026 14:19:31 +0000</pubDate>
       <description>&lt;![CDATA[&lt;p&gt;Dilbert comic for 2026-03-01.&lt;/p&gt;&lt;img src="https://djz2k.github.io/dilbert-rss/images/fd56d6706cb801301d46001dd8b71c47.gif" alt="Dilbert comic" /&gt;]]&gt;</description>
       <enclosure url="https://djz2k.github.io/dilbert-rss/images/fd56d6706cb801301d46001dd8b71c47.gif" type="image/gif" />
-    </item>
-    <item>
-      <title>Dilbert for 2026-02-28</title>
-      <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-02-28.html</link>
-      <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-02-28.html</guid>
-      <pubDate>Sat, 28 Feb 2026 03:28:10 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;p&gt;Dilbert comic for 2026-02-28.&lt;/p&gt;&lt;img src="https://djz2k.github.io/dilbert-rss/images/ba1139b06d5101301d7a001dd8b71c47.gif" alt="Dilbert comic" /&gt;]]&gt;</description>
-      <enclosure url="https://djz2k.github.io/dilbert-rss/images/ba1139b06d5101301d7a001dd8b71c47.gif" type="image/gif" />
     </item>
   </channel>
 </rss>
