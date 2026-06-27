@@ -5,8 +5,16 @@
     <link>https://djz2k.github.io/dilbert-rss/dilbert-clean.xml</link>
     <description>A daily classic Dilbert comic strip</description>
     <language>en-us</language>
-    <pubDate>Fri, 26 Jun 2026 16:10:28 +0000</pubDate>
-    <lastBuildDate>Fri, 26 Jun 2026 16:10:28 +0000</lastBuildDate>
+    <pubDate>Sat, 27 Jun 2026 15:11:48 +0000</pubDate>
+    <lastBuildDate>Sat, 27 Jun 2026 15:11:48 +0000</lastBuildDate>
+    <item>
+      <title>Dilbert for 2026-06-27</title>
+      <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-06-27.html</link>
+      <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-06-27.html</guid>
+      <pubDate>Sat, 27 Jun 2026 15:11:48 +0000</pubDate>
+      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230303153249im_/https://assets.amuniversal.com/175196409fb3012f2fe600163e41dd5b" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <enclosure url="https://web.archive.org/web/20230303153249im_/https://assets.amuniversal.com/175196409fb3012f2fe600163e41dd5b" type="image/gif" />
+    </item>
     <item>
       <title>Dilbert for 2026-06-26</title>
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-06-26.html</link>
@@ -398,14 +406,6 @@
       <pubDate>Sat, 09 May 2026 14:44:07 +0000</pubDate>
       <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230307201717im_/https://assets.amuniversal.com/ef56c7d06cc901301d50001dd8b71c47" alt="Dilbert comic" /&gt;]]&gt;</description>
       <enclosure url="https://web.archive.org/web/20230307201717im_/https://assets.amuniversal.com/ef56c7d06cc901301d50001dd8b71c47" type="image/gif" />
-    </item>
-    <item>
-      <title>Dilbert for 2026-05-08</title>
-      <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-05-08.html</link>
-      <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-05-08.html</guid>
-      <pubDate>Fri, 08 May 2026 15:16:43 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230302150627im_/https://assets.amuniversal.com/8aa7d0909854012f2fe400163e41dd5b" alt="Dilbert comic" /&gt;]]&gt;</description>
-      <enclosure url="https://web.archive.org/web/20230302150627im_/https://assets.amuniversal.com/8aa7d0909854012f2fe400163e41dd5b" type="image/gif" />
     </item>
   </channel>
 </rss>
