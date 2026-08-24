@@ -1,18 +1,28 @@
 <?xml version='1.0' encoding='utf-8'?>
-<rss version="2.0">
+<rss xmlns:media="http://search.yahoo.com/mrss/" version="2.0">
   <channel>
     <title>Daily Dilbert</title>
     <link>https://djz2k.github.io/dilbert-rss/dilbert-clean.xml</link>
     <description>A daily classic Dilbert comic strip</description>
     <language>en-us</language>
-    <pubDate>Sun, 23 Aug 2026 14:16:49 +0000</pubDate>
-    <lastBuildDate>Sun, 23 Aug 2026 14:16:49 +0000</lastBuildDate>
+    <pubDate>Mon, 24 Aug 2026 10:25:43 +0000</pubDate>
+    <lastBuildDate>Mon, 24 Aug 2026 10:25:43 +0000</lastBuildDate>
+    <item>
+      <title>Dilbert for 2026-08-24</title>
+      <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-24.html</link>
+      <guid isPermaLink="true">https://djz2k.github.io/dilbert-rss/dilbert-2026-08-24.html</guid>
+      <pubDate>Mon, 24 Aug 2026 10:25:43 +0000</pubDate>
+      <description>&lt;img src="https://djz2k.github.io/dilbert-rss/images/2026-08-24.jpg" alt="Dilbert comic for 2026-08-24" /&gt;&lt;p&gt;View today's Dilbert comic.&lt;/p&gt;</description>
+      <enclosure url="https://djz2k.github.io/dilbert-rss/images/2026-08-24.jpg" type="image/jpeg" length="233213" />
+      <media:content url="https://djz2k.github.io/dilbert-rss/images/2026-08-24.jpg" type="image/jpeg" medium="image" width="900" height="610" />
+      <media:thumbnail url="https://djz2k.github.io/dilbert-rss/images/2026-08-24.jpg" />
+    </item>
     <item>
       <title>Dilbert for 2026-08-23</title>
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-23.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-23.html</guid>
       <pubDate>Sun, 23 Aug 2026 14:16:49 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230301102058im_/https://assets.amuniversal.com/9becf2306cb901301d46001dd8b71c47" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230301102058im_/https://assets.amuniversal.com/9becf2306cb901301d46001dd8b71c47" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230301102058im_/https://assets.amuniversal.com/9becf2306cb901301d46001dd8b71c47" type="image/gif" />
     </item>
     <item>
@@ -20,7 +30,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-22.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-22.html</guid>
       <pubDate>Sat, 22 Aug 2026 14:14:34 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230308083507im_/https://assets.amuniversal.com/6d4dff60dc8d0137ca81005056a9545d" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230308083507im_/https://assets.amuniversal.com/6d4dff60dc8d0137ca81005056a9545d" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230308083507im_/https://assets.amuniversal.com/6d4dff60dc8d0137ca81005056a9545d" type="image/gif" />
     </item>
     <item>
@@ -28,7 +38,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-21.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-21.html</guid>
       <pubDate>Fri, 21 Aug 2026 14:27:40 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230301173613im_/https://assets.amuniversal.com/bf5627009f8c012f2fe600163e41dd5b" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230301173613im_/https://assets.amuniversal.com/bf5627009f8c012f2fe600163e41dd5b" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230301173613im_/https://assets.amuniversal.com/bf5627009f8c012f2fe600163e41dd5b" type="image/gif" />
     </item>
     <item>
@@ -36,7 +46,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-20.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-20.html</guid>
       <pubDate>Thu, 20 Aug 2026 14:29:16 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230304132658im_/https://assets.amuniversal.com/2407347016570130ff3e001dd8b71c47" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230304132658im_/https://assets.amuniversal.com/2407347016570130ff3e001dd8b71c47" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230304132658im_/https://assets.amuniversal.com/2407347016570130ff3e001dd8b71c47" type="image/gif" />
     </item>
     <item>
@@ -44,7 +54,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-19.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-19.html</guid>
       <pubDate>Wed, 19 Aug 2026 14:25:37 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230306171823im_/https://assets.amuniversal.com/5fb9aab06d5901301d7d001dd8b71c47" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230306171823im_/https://assets.amuniversal.com/5fb9aab06d5901301d7d001dd8b71c47" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230306171823im_/https://assets.amuniversal.com/5fb9aab06d5901301d7d001dd8b71c47" type="image/gif" />
     </item>
     <item>
@@ -52,7 +62,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-18.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-18.html</guid>
       <pubDate>Tue, 18 Aug 2026 14:25:45 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230308095657im_/https://assets.amuniversal.com/b569f2f06d5101301d7a001dd8b71c47" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230308095657im_/https://assets.amuniversal.com/b569f2f06d5101301d7a001dd8b71c47" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230308095657im_/https://assets.amuniversal.com/b569f2f06d5101301d7a001dd8b71c47" type="image/gif" />
     </item>
     <item>
@@ -60,7 +70,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-17.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-17.html</guid>
       <pubDate>Mon, 17 Aug 2026 14:20:24 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230304035137im_/https://assets.amuniversal.com/a2cb4c906cbc01301d46001dd8b71c47" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230304035137im_/https://assets.amuniversal.com/a2cb4c906cbc01301d46001dd8b71c47" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230304035137im_/https://assets.amuniversal.com/a2cb4c906cbc01301d46001dd8b71c47" type="image/gif" />
     </item>
     <item>
@@ -68,7 +78,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-16.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-16.html</guid>
       <pubDate>Sun, 16 Aug 2026 14:16:02 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230307194542im_/https://assets.amuniversal.com/942259b09f8a012f2fe600163e41dd5b" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230307194542im_/https://assets.amuniversal.com/942259b09f8a012f2fe600163e41dd5b" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230307194542im_/https://assets.amuniversal.com/942259b09f8a012f2fe600163e41dd5b" type="image/gif" />
     </item>
     <item>
@@ -76,7 +86,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-15.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-15.html</guid>
       <pubDate>Sat, 15 Aug 2026 14:15:28 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230305105001im_/https://assets.amuniversal.com/c89134f0d08c013ab1d8005056a9545d" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230305105001im_/https://assets.amuniversal.com/c89134f0d08c013ab1d8005056a9545d" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230305105001im_/https://assets.amuniversal.com/c89134f0d08c013ab1d8005056a9545d" type="image/gif" />
     </item>
     <item>
@@ -84,7 +94,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-14.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-14.html</guid>
       <pubDate>Fri, 14 Aug 2026 14:44:52 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230303004024im_/https://assets.amuniversal.com/dbe70270979e012f2fe400163e41dd5b" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230303004024im_/https://assets.amuniversal.com/dbe70270979e012f2fe400163e41dd5b" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230303004024im_/https://assets.amuniversal.com/dbe70270979e012f2fe400163e41dd5b" type="image/gif" />
     </item>
     <item>
@@ -92,7 +102,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-13.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-13.html</guid>
       <pubDate>Thu, 13 Aug 2026 14:51:03 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230303025355im_/https://assets.amuniversal.com/43906d1097b3012f2fe400163e41dd5b" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230303025355im_/https://assets.amuniversal.com/43906d1097b3012f2fe400163e41dd5b" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230303025355im_/https://assets.amuniversal.com/43906d1097b3012f2fe400163e41dd5b" type="image/gif" />
     </item>
     <item>
@@ -100,7 +110,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-12.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-12.html</guid>
       <pubDate>Wed, 12 Aug 2026 14:51:12 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230304115954im_/https://assets.amuniversal.com/8ec6c1d06f0101301e29001dd8b71c47" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230304115954im_/https://assets.amuniversal.com/8ec6c1d06f0101301e29001dd8b71c47" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230304115954im_/https://assets.amuniversal.com/8ec6c1d06f0101301e29001dd8b71c47" type="image/gif" />
     </item>
     <item>
@@ -108,7 +118,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-11.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-11.html</guid>
       <pubDate>Tue, 11 Aug 2026 14:52:12 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230301143503im_/https://assets.amuniversal.com/cb4ef360a04c012f2fe600163e41dd5b" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230301143503im_/https://assets.amuniversal.com/cb4ef360a04c012f2fe600163e41dd5b" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230301143503im_/https://assets.amuniversal.com/cb4ef360a04c012f2fe600163e41dd5b" type="image/gif" />
     </item>
     <item>
@@ -116,7 +126,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-10.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-10.html</guid>
       <pubDate>Mon, 10 Aug 2026 14:52:14 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230308093927im_/https://assets.amuniversal.com/fbd816506cb801301d46001dd8b71c47" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230308093927im_/https://assets.amuniversal.com/fbd816506cb801301d46001dd8b71c47" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230308093927im_/https://assets.amuniversal.com/fbd816506cb801301d46001dd8b71c47" type="image/gif" />
     </item>
     <item>
@@ -124,7 +134,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-09.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-09.html</guid>
       <pubDate>Sun, 09 Aug 2026 14:28:06 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230302231649im_/https://assets.amuniversal.com/2baee4a06d6401301d80001dd8b71c47" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230302231649im_/https://assets.amuniversal.com/2baee4a06d6401301d80001dd8b71c47" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230302231649im_/https://assets.amuniversal.com/2baee4a06d6401301d80001dd8b71c47" type="image/gif" />
     </item>
     <item>
@@ -132,7 +142,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-08.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-08.html</guid>
       <pubDate>Sat, 08 Aug 2026 14:25:41 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230307220600im_/https://assets.amuniversal.com/3c133370979e012f2fe400163e41dd5b" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230307220600im_/https://assets.amuniversal.com/3c133370979e012f2fe400163e41dd5b" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230307220600im_/https://assets.amuniversal.com/3c133370979e012f2fe400163e41dd5b" type="image/gif" />
     </item>
     <item>
@@ -140,7 +150,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-07.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-07.html</guid>
       <pubDate>Fri, 07 Aug 2026 14:47:26 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230304123130im_/https://assets.amuniversal.com/fff135f097a9012f2fe400163e41dd5b" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230304123130im_/https://assets.amuniversal.com/fff135f097a9012f2fe400163e41dd5b" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230304123130im_/https://assets.amuniversal.com/fff135f097a9012f2fe400163e41dd5b" type="image/gif" />
     </item>
     <item>
@@ -148,7 +158,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-05.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-05.html</guid>
       <pubDate>Wed, 05 Aug 2026 15:58:10 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230301103457im_/https://assets.amuniversal.com/46cf10606cb801301d46001dd8b71c47" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230301103457im_/https://assets.amuniversal.com/46cf10606cb801301d46001dd8b71c47" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230301103457im_/https://assets.amuniversal.com/46cf10606cb801301d46001dd8b71c47" type="image/gif" />
     </item>
     <item>
@@ -156,7 +166,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-04.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-04.html</guid>
       <pubDate>Tue, 04 Aug 2026 16:08:24 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230302144758im_/https://assets.amuniversal.com/18d5d1b016570130ff3e001dd8b71c47" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230302144758im_/https://assets.amuniversal.com/18d5d1b016570130ff3e001dd8b71c47" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230302144758im_/https://assets.amuniversal.com/18d5d1b016570130ff3e001dd8b71c47" type="image/gif" />
     </item>
     <item>
@@ -164,7 +174,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-03.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-03.html</guid>
       <pubDate>Mon, 03 Aug 2026 16:17:08 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230302163014im_/https://assets.amuniversal.com/e46477306d5101301d7a001dd8b71c47" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230302163014im_/https://assets.amuniversal.com/e46477306d5101301d7a001dd8b71c47" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230302163014im_/https://assets.amuniversal.com/e46477306d5101301d7a001dd8b71c47" type="image/gif" />
     </item>
     <item>
@@ -172,7 +182,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-02.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-02.html</guid>
       <pubDate>Sun, 02 Aug 2026 14:56:42 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230308000853im_/https://assets.amuniversal.com/45b4df30987a012f2fe400163e41dd5b" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230308000853im_/https://assets.amuniversal.com/45b4df30987a012f2fe400163e41dd5b" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230308000853im_/https://assets.amuniversal.com/45b4df30987a012f2fe400163e41dd5b" type="image/gif" />
     </item>
     <item>
@@ -180,7 +190,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-01.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-08-01.html</guid>
       <pubDate>Sat, 01 Aug 2026 14:54:42 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230303160959im_/https://assets.amuniversal.com/8ac08a30b7ff013817ab005056a9545d" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230303160959im_/https://assets.amuniversal.com/8ac08a30b7ff013817ab005056a9545d" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230303160959im_/https://assets.amuniversal.com/8ac08a30b7ff013817ab005056a9545d" type="image/gif" />
     </item>
     <item>
@@ -188,7 +198,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-31.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-31.html</guid>
       <pubDate>Fri, 31 Jul 2026 15:58:14 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230304114058im_/https://assets.amuniversal.com/fdf7c1c06cc701301d50001dd8b71c47" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230304114058im_/https://assets.amuniversal.com/fdf7c1c06cc701301d50001dd8b71c47" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230304114058im_/https://assets.amuniversal.com/fdf7c1c06cc701301d50001dd8b71c47" type="image/gif" />
     </item>
     <item>
@@ -196,7 +206,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-30.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-30.html</guid>
       <pubDate>Thu, 30 Jul 2026 15:47:09 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230301083141im_/https://assets.amuniversal.com/8821dbe0b104012f2fef00163e41dd5b" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230301083141im_/https://assets.amuniversal.com/8821dbe0b104012f2fef00163e41dd5b" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230301083141im_/https://assets.amuniversal.com/8821dbe0b104012f2fef00163e41dd5b" type="image/gif" />
     </item>
     <item>
@@ -204,7 +214,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-29.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-29.html</guid>
       <pubDate>Wed, 29 Jul 2026 15:46:42 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230302123010im_/https://assets.amuniversal.com/7cf25630b0e8012f2fef00163e41dd5b" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230302123010im_/https://assets.amuniversal.com/7cf25630b0e8012f2fef00163e41dd5b" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230302123010im_/https://assets.amuniversal.com/7cf25630b0e8012f2fef00163e41dd5b" type="image/gif" />
     </item>
     <item>
@@ -212,7 +222,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-28.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-28.html</guid>
       <pubDate>Tue, 28 Jul 2026 16:01:10 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230304011408im_/https://assets.amuniversal.com/599deb709fb2012f2fe600163e41dd5b" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230304011408im_/https://assets.amuniversal.com/599deb709fb2012f2fe600163e41dd5b" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230304011408im_/https://assets.amuniversal.com/599deb709fb2012f2fe600163e41dd5b" type="image/gif" />
     </item>
     <item>
@@ -220,7 +230,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-27.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-27.html</guid>
       <pubDate>Mon, 27 Jul 2026 16:10:50 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230304134413im_/https://assets.amuniversal.com/5e680aa06d5401301d7c001dd8b71c47" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230304134413im_/https://assets.amuniversal.com/5e680aa06d5401301d7c001dd8b71c47" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230304134413im_/https://assets.amuniversal.com/5e680aa06d5401301d7c001dd8b71c47" type="image/gif" />
     </item>
     <item>
@@ -228,7 +238,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-26.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-26.html</guid>
       <pubDate>Sun, 26 Jul 2026 14:59:12 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230307013210im_/https://assets.amuniversal.com/1b7d2b109c4a012f2fe400163e41dd5b" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230307013210im_/https://assets.amuniversal.com/1b7d2b109c4a012f2fe400163e41dd5b" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230307013210im_/https://assets.amuniversal.com/1b7d2b109c4a012f2fe400163e41dd5b" type="image/gif" />
     </item>
     <item>
@@ -236,7 +246,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-25.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-25.html</guid>
       <pubDate>Sat, 25 Jul 2026 14:57:22 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230304005417im_/https://assets.amuniversal.com/dff61e406cb901301d46001dd8b71c47" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230304005417im_/https://assets.amuniversal.com/dff61e406cb901301d46001dd8b71c47" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230304005417im_/https://assets.amuniversal.com/dff61e406cb901301d46001dd8b71c47" type="image/gif" />
     </item>
     <item>
@@ -244,7 +254,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-24.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-24.html</guid>
       <pubDate>Fri, 24 Jul 2026 15:21:26 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230306222347im_/https://assets.amuniversal.com/2d33f1f09d46012f2fe500163e41dd5b" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230306222347im_/https://assets.amuniversal.com/2d33f1f09d46012f2fe500163e41dd5b" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230306222347im_/https://assets.amuniversal.com/2d33f1f09d46012f2fe500163e41dd5b" type="image/gif" />
     </item>
     <item>
@@ -252,7 +262,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-23.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-23.html</guid>
       <pubDate>Thu, 23 Jul 2026 15:50:36 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230304085126im_/https://assets.amuniversal.com/55baa2006cc801301d50001dd8b71c47" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230304085126im_/https://assets.amuniversal.com/55baa2006cc801301d50001dd8b71c47" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230304085126im_/https://assets.amuniversal.com/55baa2006cc801301d50001dd8b71c47" type="image/gif" />
     </item>
     <item>
@@ -260,7 +270,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-22.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-22.html</guid>
       <pubDate>Wed, 22 Jul 2026 15:27:29 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230301133715im_/https://assets.amuniversal.com/e627de9047b001394751005056a9545d" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230301133715im_/https://assets.amuniversal.com/e627de9047b001394751005056a9545d" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230301133715im_/https://assets.amuniversal.com/e627de9047b001394751005056a9545d" type="image/gif" />
     </item>
     <item>
@@ -268,7 +278,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-21.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-21.html</guid>
       <pubDate>Tue, 21 Jul 2026 15:38:06 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230304083648im_/https://assets.amuniversal.com/8616b2c09f73012f2fe600163e41dd5b" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230304083648im_/https://assets.amuniversal.com/8616b2c09f73012f2fe600163e41dd5b" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230304083648im_/https://assets.amuniversal.com/8616b2c09f73012f2fe600163e41dd5b" type="image/gif" />
     </item>
     <item>
@@ -276,7 +286,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-20.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-20.html</guid>
       <pubDate>Mon, 20 Jul 2026 15:45:57 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230308025109im_/https://assets.amuniversal.com/082a4f40e4f3012fed51001dd8b71c47" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230308025109im_/https://assets.amuniversal.com/082a4f40e4f3012fed51001dd8b71c47" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230308025109im_/https://assets.amuniversal.com/082a4f40e4f3012fed51001dd8b71c47" type="image/gif" />
     </item>
     <item>
@@ -284,7 +294,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-19.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-19.html</guid>
       <pubDate>Sun, 19 Jul 2026 14:49:14 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230307002040im_/https://assets.amuniversal.com/5d6b38306d6301301d80001dd8b71c47" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230307002040im_/https://assets.amuniversal.com/5d6b38306d6301301d80001dd8b71c47" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230307002040im_/https://assets.amuniversal.com/5d6b38306d6301301d80001dd8b71c47" type="image/gif" />
     </item>
     <item>
@@ -292,7 +302,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-18.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-18.html</guid>
       <pubDate>Sat, 18 Jul 2026 14:45:52 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230301153054im_/https://assets.amuniversal.com/0329eec002a101377bf9005056a9545d" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230301153054im_/https://assets.amuniversal.com/0329eec002a101377bf9005056a9545d" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230301153054im_/https://assets.amuniversal.com/0329eec002a101377bf9005056a9545d" type="image/gif" />
     </item>
     <item>
@@ -300,7 +310,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-17.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-17.html</guid>
       <pubDate>Fri, 17 Jul 2026 15:08:48 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230302093321im_/https://assets.amuniversal.com/6582abe0c854012e2f9100163e41dd5b" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230302093321im_/https://assets.amuniversal.com/6582abe0c854012e2f9100163e41dd5b" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230302093321im_/https://assets.amuniversal.com/6582abe0c854012e2f9100163e41dd5b" type="image/gif" />
     </item>
     <item>
@@ -308,7 +318,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-16.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-16.html</guid>
       <pubDate>Thu, 16 Jul 2026 15:28:16 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230301061337im_/https://assets.amuniversal.com/7c2ed2a0986b012f2fe400163e41dd5b" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230301061337im_/https://assets.amuniversal.com/7c2ed2a0986b012f2fe400163e41dd5b" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230301061337im_/https://assets.amuniversal.com/7c2ed2a0986b012f2fe400163e41dd5b" type="image/gif" />
     </item>
     <item>
@@ -316,7 +326,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-15.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-15.html</guid>
       <pubDate>Wed, 15 Jul 2026 15:21:53 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230303005230im_/https://assets.amuniversal.com/fc4124e09fb1012f2fe600163e41dd5b" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230303005230im_/https://assets.amuniversal.com/fc4124e09fb1012f2fe600163e41dd5b" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230303005230im_/https://assets.amuniversal.com/fc4124e09fb1012f2fe600163e41dd5b" type="image/gif" />
     </item>
     <item>
@@ -324,7 +334,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-14.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-14.html</guid>
       <pubDate>Tue, 14 Jul 2026 15:19:13 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230304122737im_/https://assets.amuniversal.com/e58523b06d5b01301d80001dd8b71c47" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230304122737im_/https://assets.amuniversal.com/e58523b06d5b01301d80001dd8b71c47" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230304122737im_/https://assets.amuniversal.com/e58523b06d5b01301d80001dd8b71c47" type="image/gif" />
     </item>
     <item>
@@ -332,7 +342,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-13.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-13.html</guid>
       <pubDate>Mon, 13 Jul 2026 16:25:22 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230305100053im_/https://assets.amuniversal.com/f2dcb7e0f179013aba2a005056a9545d" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230305100053im_/https://assets.amuniversal.com/f2dcb7e0f179013aba2a005056a9545d" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230305100053im_/https://assets.amuniversal.com/f2dcb7e0f179013aba2a005056a9545d" type="image/gif" />
     </item>
     <item>
@@ -340,7 +350,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-12.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-12.html</guid>
       <pubDate>Sun, 12 Jul 2026 14:50:10 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230303044310im_/https://assets.amuniversal.com/91be88706cc901301d50001dd8b71c47" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230303044310im_/https://assets.amuniversal.com/91be88706cc901301d50001dd8b71c47" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230303044310im_/https://assets.amuniversal.com/91be88706cc901301d50001dd8b71c47" type="image/gif" />
     </item>
     <item>
@@ -348,7 +358,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-11.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-11.html</guid>
       <pubDate>Sat, 11 Jul 2026 14:47:08 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230303003218im_/https://assets.amuniversal.com/43eb2bd03718012ea5cb00163e41dd5b" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230303003218im_/https://assets.amuniversal.com/43eb2bd03718012ea5cb00163e41dd5b" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230303003218im_/https://assets.amuniversal.com/43eb2bd03718012ea5cb00163e41dd5b" type="image/gif" />
     </item>
     <item>
@@ -356,7 +366,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-10.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-10.html</guid>
       <pubDate>Fri, 10 Jul 2026 16:20:40 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230303164159im_/https://assets.amuniversal.com/d33675b06d5b01301d80001dd8b71c47" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230303164159im_/https://assets.amuniversal.com/d33675b06d5b01301d80001dd8b71c47" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230303164159im_/https://assets.amuniversal.com/d33675b06d5b01301d80001dd8b71c47" type="image/gif" />
     </item>
     <item>
@@ -364,7 +374,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-09.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-09.html</guid>
       <pubDate>Thu, 09 Jul 2026 16:23:14 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230302204949im_/https://assets.amuniversal.com/ab00bf003db401314c8e001dd8b71c47" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230302204949im_/https://assets.amuniversal.com/ab00bf003db401314c8e001dd8b71c47" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230302204949im_/https://assets.amuniversal.com/ab00bf003db401314c8e001dd8b71c47" type="image/gif" />
     </item>
     <item>
@@ -372,7 +382,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-08.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-08.html</guid>
       <pubDate>Wed, 08 Jul 2026 15:58:43 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230308061305im_/https://assets.amuniversal.com/dbb43930a204012f2fe800163e41dd5b" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230308061305im_/https://assets.amuniversal.com/dbb43930a204012f2fe800163e41dd5b" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230308061305im_/https://assets.amuniversal.com/dbb43930a204012f2fe800163e41dd5b" type="image/gif" />
     </item>
     <item>
@@ -380,7 +390,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-07.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-07.html</guid>
       <pubDate>Tue, 07 Jul 2026 16:24:00 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230308120744im_/https://assets.amuniversal.com/048789606cca01301d50001dd8b71c47" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230308120744im_/https://assets.amuniversal.com/048789606cca01301d50001dd8b71c47" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230308120744im_/https://assets.amuniversal.com/048789606cca01301d50001dd8b71c47" type="image/gif" />
     </item>
     <item>
@@ -388,7 +398,7 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-06.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-06.html</guid>
       <pubDate>Mon, 06 Jul 2026 16:48:49 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230301212432im_/https://assets.amuniversal.com/ebee7fe06d5c01301d80001dd8b71c47" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230301212432im_/https://assets.amuniversal.com/ebee7fe06d5c01301d80001dd8b71c47" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230301212432im_/https://assets.amuniversal.com/ebee7fe06d5c01301d80001dd8b71c47" type="image/gif" />
     </item>
     <item>
@@ -396,16 +406,8 @@
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-05.html</link>
       <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-05.html</guid>
       <pubDate>Sun, 05 Jul 2026 15:08:49 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230303022043im_/https://assets.amuniversal.com/cc7e6af06cc601301d50001dd8b71c47" alt="Dilbert comic" /&gt;]]&gt;</description>
+      <description>&lt;img src="https://web.archive.org/web/20230303022043im_/https://assets.amuniversal.com/cc7e6af06cc601301d50001dd8b71c47" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230303022043im_/https://assets.amuniversal.com/cc7e6af06cc601301d50001dd8b71c47" type="image/gif" />
-    </item>
-    <item>
-      <title>Dilbert for 2026-07-04</title>
-      <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-04.html</link>
-      <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-04.html</guid>
-      <pubDate>Sat, 04 Jul 2026 15:00:38 +0000</pubDate>
-      <description>&lt;![CDATA[&lt;img src="https://web.archive.org/web/20230303163645im_/https://assets.amuniversal.com/06644d00e870013354df005056a9545d" alt="Dilbert comic" /&gt;]]&gt;</description>
-      <enclosure url="https://web.archive.org/web/20230303163645im_/https://assets.amuniversal.com/06644d00e870013354df005056a9545d" type="image/gif" />
     </item>
   </channel>
 </rss>
