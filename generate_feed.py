@@ -1,13 +1,23 @@
 """Daily Dilbert RSS feed generator.
 
-Mirrors the proven calvin-rss architecture:
-- External image URLs (no self-hosted images)
-- ElementTree RSS generation
-- Minimal OG tags for reliable unfurling
+Architecture notes:
+- The comic image is DOWNLOADED at build time and self-hosted under docs/images/.
+  Hotlinking the upstream archive host is not viable: every URL is a cross-domain
+  302 to a different capture, latency is seconds, and the host refuses connections
+  at the TCP layer once an IP makes more than a handful of requests. Unfurl bots
+  run from shared, high-volume IPs, so they get blocked and render an empty card.
+  Serving the image from GitHub Pages is same-origin, redirect-free and unmetered.
+- The on-disk extension is chosen from the image's magic bytes, so GitHub Pages
+  always serves a Content-Type that matches the actual payload.
+- RSS generation uses ElementTree (no feed library dependency).
+- The run fails loudly (non-zero exit) rather than skipping a day.
 """
 
 import json
+import random
 import re
+import sys
+import time
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 from pathlib import Path
@@ -20,12 +30,22 @@ SOURCE_URL = "https://dilbert-viewer.herokuapp.com/random"
 USED_FILE = "used_comics.json"
 RSS_FILE = "docs/dilbert-clean.xml"
 INDEX_FILE = "docs/index.html"
+IMAGES_DIR = "docs/images"
 SITE_URL = "https://djz2k.github.io/dilbert-rss"
 FEED_TITLE = "Daily Dilbert"
 FEED_DESC = "A daily classic Dilbert comic strip"
+ITEM_DESC = "View today's Dilbert comic."
 MAX_ITEMS = 50
 MAX_RETRIES = 10
+MAX_FALLBACK_RETRIES = 5
+MAX_IMAGE_RETRIES = 5
+IMAGE_RETRY_BACKOFF = 6  # seconds, multiplied by attempt number
+MIN_IMAGE_BYTES = 1024
+POOL_EXTS = {".gif", ".jpg", ".jpeg", ".png"}
 HEADERS = {"User-Agent": "Mozilla/5.0"}
+MEDIA_NS = "http://search.yahoo.com/mrss/"
+
+ET.register_namespace("media", MEDIA_NS)
 
 
 def load_used():
@@ -74,32 +94,269 @@ def find_unique_comic(used):
     return None, None
 
 
-def write_html(image_url, date_str):
-    """Write both the dated page and index.html — mirrors Calvin exactly."""
-    page_url = f"{SITE_URL}/dilbert-{date_str}.html"
+def find_any_comic():
+    """Last resort: accept a repeat rather than let the day go unfilled."""
+    for attempt in range(1, MAX_FALLBACK_RETRIES + 1):
+        print(f"Fallback attempt {attempt}/{MAX_FALLBACK_RETRIES}...")
+        image_hash, image_url = fetch_random_comic()
+        if image_hash:
+            return image_hash, image_url
+    return None, None
 
-    html = f"""<!DOCTYPE html>
-<html>
+
+def sniff_image(data):
+    """Return (extension, mime_type, width, height) from magic bytes, or None.
+
+    Keeps the served Content-Type honest: GitHub Pages picks the type from the
+    file extension, so the extension has to follow the actual bytes.
+    """
+    if data[:6] in (b"GIF87a", b"GIF89a"):
+        width = int.from_bytes(data[6:8], "little")
+        height = int.from_bytes(data[8:10], "little")
+        return ".gif", "image/gif", width, height
+
+    if data[:8] == b"\x89PNG\r\n\x1a\n":
+        width = int.from_bytes(data[16:20], "big")
+        height = int.from_bytes(data[20:24], "big")
+        return ".png", "image/png", width, height
+
+    if data[:2] == b"\xff\xd8":
+        sof_markers = {
+            0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6,
+            0xC7, 0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF,
+        }
+        i = 2
+        while i < len(data) - 9:
+            if data[i] != 0xFF:
+                i += 1
+                continue
+            marker = data[i + 1]
+            if marker == 0xFF:
+                i += 1
+                continue
+            if marker in (0xD8, 0x01) or 0xD0 <= marker <= 0xD7:
+                i += 2
+                continue
+            seg_len = int.from_bytes(data[i + 2:i + 4], "big")
+            if seg_len < 2:
+                break
+            if marker in sof_markers:
+                height = int.from_bytes(data[i + 5:i + 7], "big")
+                width = int.from_bytes(data[i + 7:i + 9], "big")
+                return ".jpg", "image/jpeg", width, height
+            i += 2 + seg_len
+        return ".jpg", "image/jpeg", 0, 0
+
+    return None
+
+
+def download_image(source_url, date_str):
+    """Download the comic and store it under docs/images/.
+
+    Returns (image_url, mime_type, width, height, byte_count) or None.
+    """
+    Path(IMAGES_DIR).mkdir(parents=True, exist_ok=True)
+
+    for attempt in range(1, MAX_IMAGE_RETRIES + 1):
+        print(f"Downloading image, attempt {attempt}/{MAX_IMAGE_RETRIES}...")
+        try:
+            r = requests.get(source_url, headers=HEADERS, timeout=30)
+            r.raise_for_status()
+            data = r.content
+        except Exception as e:
+            print(f"  [ERR] Image download failed: {e}")
+            if attempt < MAX_IMAGE_RETRIES:
+                delay = IMAGE_RETRY_BACKOFF * attempt
+                print(f"  [WAIT] Backing off {delay}s before retry")
+                time.sleep(delay)
+            continue
+
+        if len(data) < MIN_IMAGE_BYTES:
+            print(f"  [ERR] Image too small ({len(data)} bytes), treating as failure")
+            if attempt < MAX_IMAGE_RETRIES:
+                time.sleep(IMAGE_RETRY_BACKOFF * attempt)
+            continue
+
+        sniffed = sniff_image(data)
+        if not sniffed:
+            print("  [ERR] Downloaded payload is not a recognised image")
+            if attempt < MAX_IMAGE_RETRIES:
+                time.sleep(IMAGE_RETRY_BACKOFF * attempt)
+            continue
+
+        ext, mime, width, height = sniffed
+
+        # Drop any stale copy for today that used a different extension
+        for old in Path(IMAGES_DIR).glob(f"{date_str}.*"):
+            if old.suffix != ext:
+                old.unlink()
+                print(f"  [OK] Removed stale {old.name}")
+
+        dest = Path(IMAGES_DIR) / f"{date_str}{ext}"
+        dest.write_bytes(data)
+        image_url = f"{SITE_URL}/images/{date_str}{ext}"
+        print(f"  [OK] Saved {dest} ({len(data)} bytes, {width}x{height}, {mime})")
+        return image_url, mime, width, height, len(data)
+
+    return None
+
+
+def recently_used_images():
+    """Basenames of images referenced by the current feed, to avoid an obvious repeat."""
+    names = set()
+    if not Path(RSS_FILE).exists():
+        return names
+    try:
+        tree = ET.parse(RSS_FILE)
+        for enc in tree.getroot().iter("enclosure"):
+            url = enc.get("url", "")
+            if url:
+                names.add(url.rstrip("/").split("/")[-1].split("?")[0])
+    except ET.ParseError:
+        print("  [WARN] Could not parse existing feed while reading recent images")
+    return names
+
+
+def use_local_pool(date_str):
+    """Last resort: re-post an image we already host.
+
+    Every upstream in this pipeline is a third party that can disappear. The
+    images under docs/images/ are served from our own Pages site, so they cannot
+    fail the way a remote host can. Falling back to them keeps the promise that a
+    day is never skipped. The pick is seeded by the date, so re-running the same
+    day is idempotent, and the file is referenced in place rather than copied so
+    the emergency path does not bloat the repo.
+
+    Returns (image_url, mime_type, width, height, byte_count) or None.
+    """
+    if not Path(IMAGES_DIR).is_dir():
+        print("  [ERR] No local image pool directory")
+        return None
+
+    candidates = sorted(
+        p for p in Path(IMAGES_DIR).iterdir()
+        if p.is_file() and p.suffix.lower() in POOL_EXTS and p.stem != date_str
+    )
+    if not candidates:
+        print("  [ERR] Local image pool is empty")
+        return None
+
+    recent = recently_used_images()
+    fresh = [p for p in candidates if p.name not in recent]
+    if fresh:
+        pool = fresh
+    else:
+        pool = candidates
+        print("  [WARN] Every pooled image is already in the feed; allowing a repeat")
+
+    print(f"Selecting from local pool ({len(pool)} candidates)...")
+    order = list(pool)
+    random.Random(date_str).shuffle(order)
+
+    for candidate in order:
+        try:
+            data = candidate.read_bytes()
+        except OSError as e:
+            print(f"  [SKIP] Could not read {candidate.name}: {e}")
+            continue
+
+        if len(data) < MIN_IMAGE_BYTES:
+            print(f"  [SKIP] {candidate.name} is too small ({len(data)} bytes)")
+            continue
+
+        sniffed = sniff_image(data)
+        if not sniffed:
+            print(f"  [SKIP] {candidate.name} is not a recognised image")
+            continue
+
+        ext, mime, width, height = sniffed
+        suffix = candidate.suffix.lower()
+        if suffix == ".jpeg":
+            suffix = ".jpg"
+        if suffix != ext:
+            # Pages types by extension, so a mislabelled file would unfurl blank.
+            print(f"  [SKIP] {candidate.name} holds {mime} but is named {candidate.suffix}")
+            continue
+
+        image_url = f"{SITE_URL}/images/{candidate.name}"
+        print(f"  [OK] Reusing {candidate.name} ({len(data)} bytes, {width}x{height}, {mime})")
+        return image_url, mime, width, height, len(data)
+
+    print("  [ERR] No usable image in the local pool")
+    return None
+
+
+def render_html(date_str, page_url, image_url, mime, width, height):
+    """Minimal page carrying a complete, self-consistent set of unfurl tags."""
+    feed_url = f"{SITE_URL}/dilbert-clean.xml"
+    size_tags = ""
+    if width and height:
+        size_tags = (
+            f'\n  <meta property="og:image:width" content="{width}" />'
+            f'\n  <meta property="og:image:height" content="{height}" />'
+        )
+    dimensions = f' width="{width}" height="{height}"' if width and height else ""
+
+    return f"""<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta property="og:title" content="Dilbert for {date_str}" />
-  <meta property="og:image" content="{image_url}" />
-  <meta property="og:description" content="View today's Dilbert comic." />
-  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dilbert for {date_str}</title>
+  <link rel="canonical" href="{page_url}" />
+  <link rel="alternate" type="application/rss+xml" title="{FEED_TITLE}" href="{feed_url}" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="{FEED_TITLE}" />
+  <meta property="og:url" content="{page_url}" />
+  <meta property="og:title" content="Dilbert for {date_str}" />
+  <meta property="og:description" content="{ITEM_DESC}" />
+  <meta property="og:image" content="{image_url}" />
+  <meta property="og:image:secure_url" content="{image_url}" />
+  <meta property="og:image:type" content="{mime}" />
+  <meta property="og:image:alt" content="Dilbert comic for {date_str}" />{size_tags}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Dilbert for {date_str}" />
+  <meta name="twitter:description" content="{ITEM_DESC}" />
+  <meta name="twitter:image" content="{image_url}" />
 </head>
 <body>
   <h1>Dilbert for {date_str}</h1>
-  <img src="{image_url}" alt="Dilbert comic"/>
+  <img src="{image_url}" alt="Dilbert comic for {date_str}"{dimensions} style="max-width:100%;height:auto" />
+  <p><a href="{feed_url}">RSS feed</a></p>
 </body>
 </html>"""
 
-    Path(f"docs/dilbert-{date_str}.html").write_text(html)
-    Path(INDEX_FILE).write_text(html)
+
+def write_html(date_str, image_url, mime, width, height):
+    """Write the dated page and index.html, each declaring its own canonical URL."""
+    page_url = f"{SITE_URL}/dilbert-{date_str}.html"
+
+    Path("docs").mkdir(exist_ok=True)
+    Path(f"docs/dilbert-{date_str}.html").write_text(
+        render_html(date_str, page_url, image_url, mime, width, height)
+    )
+    Path(INDEX_FILE).write_text(
+        render_html(date_str, f"{SITE_URL}/", image_url, mime, width, height)
+    )
     print(f"  [OK] Wrote dilbert-{date_str}.html + index.html")
 
 
-def build_rss_items(date_str, image_url):
+def normalize_description(item):
+    """Unwrap literal CDATA markers left in carried-forward items.
+
+    ElementTree escapes whatever it is handed, so a '<![CDATA[...]]>' string
+    previously landed in the feed as visible text instead of markup. Strip the
+    wrapper so the payload escapes once, the way RSS expects.
+    """
+    desc = item.find("description")
+    if desc is None or not desc.text:
+        return
+    text = desc.text.strip()
+    if text.startswith("<![CDATA[") and text.endswith("]]>"):
+        desc.text = text[len("<![CDATA["):-len("]]>")]
+
+
+def build_rss_items(date_str, image_url, mime, width, height, byte_count):
     """Build the new item and append existing items from the feed file."""
     items = []
 
@@ -110,15 +367,23 @@ def build_rss_items(date_str, image_url):
     item = ET.Element("item")
     ET.SubElement(item, "title").text = f"Dilbert for {date_str}"
     ET.SubElement(item, "link").text = link_url
-    ET.SubElement(item, "guid").text = link_url
+    ET.SubElement(item, "guid", attrib={"isPermaLink": "true"}).text = link_url
     ET.SubElement(item, "pubDate").text = pub_date
+    # Escaped HTML, not a literal CDATA string: ElementTree escapes this once.
     ET.SubElement(item, "description").text = (
-        f'<![CDATA[<img src="{image_url}" alt="Dilbert comic" />]]>'
+        f'<img src="{image_url}" alt="Dilbert comic for {date_str}" /><p>{ITEM_DESC}</p>'
     )
     ET.SubElement(item, "enclosure", attrib={
         "url": image_url,
-        "type": "image/gif",
+        "type": mime,
+        "length": str(byte_count),
     })
+    media_attrib = {"url": image_url, "type": mime, "medium": "image"}
+    if width and height:
+        media_attrib["width"] = str(width)
+        media_attrib["height"] = str(height)
+    ET.SubElement(item, f"{{{MEDIA_NS}}}content", attrib=media_attrib)
+    ET.SubElement(item, f"{{{MEDIA_NS}}}thumbnail", attrib={"url": image_url})
     items.append(item)
 
     # Carry forward existing items
@@ -130,6 +395,9 @@ def build_rss_items(date_str, image_url):
                 for old_item in channel.findall("item"):
                     if len(items) >= MAX_ITEMS:
                         break
+                    if old_item.findtext("guid", "") == link_url:
+                        continue
+                    normalize_description(old_item)
                     items.append(old_item)
         except ET.ParseError:
             print("  [WARN] Could not parse existing feed, starting fresh")
@@ -138,8 +406,10 @@ def build_rss_items(date_str, image_url):
 
 
 def write_rss(items, pub_date):
-    """Write the RSS feed — mirrors Calvin exactly."""
-    rss = ET.Element("rss", version="2.0")
+    """Write the RSS feed."""
+    # The media namespace declaration comes from ET.register_namespace above;
+    # declaring it here as well would emit a duplicate attribute and break the XML.
+    rss = ET.Element("rss", attrib={"version": "2.0"})
     channel = ET.SubElement(rss, "channel")
 
     ET.SubElement(channel, "title").text = FEED_TITLE
@@ -181,18 +451,43 @@ def main():
     used = load_used()
     print(f"Loaded {len(used)} used comics")
 
-    image_hash, image_url = find_unique_comic(used)
+    image_hash, source_url = find_unique_comic(used)
     if not image_hash:
-        print("[FAIL] Could not find a unique comic after all retries.")
-        return
+        print("[WARN] No unused comic after all retries; allowing a repeat so the day is not skipped.")
+        image_hash, source_url = find_any_comic()
 
-    write_html(image_url, today)
-    items, pub_date = build_rss_items(today, image_url)
+    downloaded = None
+    if image_hash:
+        downloaded = download_image(source_url, today)
+        if not downloaded:
+            print("[WARN] Could not download the comic image; falling back to the local pool.")
+    else:
+        print("[WARN] No comic available upstream; falling back to the local pool.")
+
+    from_pool = False
+    if not downloaded:
+        downloaded = use_local_pool(today)
+        from_pool = downloaded is not None
+
+    if not downloaded:
+        print("[FAIL] Upstream unavailable and no usable image in the local pool. "
+              "Failing the run rather than skipping the day.")
+        sys.exit(1)
+
+    image_url, mime, width, height, byte_count = downloaded
+
+    write_html(today, image_url, mime, width, height)
+    items, pub_date = build_rss_items(today, image_url, mime, width, height, byte_count)
     write_rss(items, pub_date)
 
-    used.add(image_hash)
-    save_used(used)
-    print(f"[SUCCESS] Posted Dilbert for {today}: {image_hash}")
+    if from_pool:
+        # No upstream hash to record: the comic came from images we already host.
+        print(f"[SUCCESS] Posted Dilbert for {today} from the local pool: "
+              f"{image_url.rstrip('/').split('/')[-1]}")
+    else:
+        used.add(image_hash)
+        save_used(used)
+        print(f"[SUCCESS] Posted Dilbert for {today}: {image_hash}")
 
 
 if __name__ == "__main__":
