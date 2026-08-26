@@ -7,12 +7,16 @@ Architecture notes:
   at the TCP layer once an IP makes more than a handful of requests. Unfurl bots
   run from shared, high-volume IPs, so they get blocked and render an empty card.
   Serving the image from GitHub Pages is same-origin, redirect-free and unmetered.
-- The on-disk extension is chosen from the image's magic bytes, so GitHub Pages
-  always serves a Content-Type that matches the actual payload.
+- Every comic is re-encoded onto a fixed 1200x630 JPEG canvas. Upstream strips
+  arrive at 900 and 1200 px wide, as GIF or JPEG, with aspect ratios from 1.5:1
+  to 3.3:1, and unfurlers disagree about which of those they will render.
+  Normalising removes the variation instead of guessing at each client's limits.
+  It also makes the extension honest, so Pages serves a matching Content-Type.
 - RSS generation uses ElementTree (no feed library dependency).
 - The run fails loudly (non-zero exit) rather than skipping a day.
 """
 
+import io
 import json
 import random
 import re
@@ -24,6 +28,7 @@ from pathlib import Path
 
 import requests
 from bs4 import BeautifulSoup
+from PIL import Image
 
 # === Config ===
 SOURCE_URL = "https://dilbert-viewer.herokuapp.com/random"
@@ -42,6 +47,11 @@ MAX_IMAGE_RETRIES = 5
 IMAGE_RETRY_BACKOFF = 6  # seconds, multiplied by attempt number
 MIN_IMAGE_BYTES = 1024
 POOL_EXTS = {".gif", ".jpg", ".jpeg", ".png"}
+# Standard Open Graph canvas. Every served image is exactly this.
+OG_WIDTH = 1200
+OG_HEIGHT = 630
+OG_BACKGROUND = (255, 255, 255)
+JPEG_QUALITY = 90
 HEADERS = {"User-Agent": "Mozilla/5.0"}
 MEDIA_NS = "http://search.yahoo.com/mrss/"
 
@@ -104,50 +114,49 @@ def find_any_comic():
     return None, None
 
 
-def sniff_image(data):
-    """Return (extension, mime_type, width, height) from magic bytes, or None.
+def normalize_image(data, date_str):
+    """Letterbox the comic onto the standard Open Graph canvas as baseline JPEG.
 
-    Keeps the served Content-Type honest: GitHub Pages picks the type from the
-    file extension, so the extension has to follow the actual bytes.
+    Pillow decodes by content rather than by filename, so this also rescues the
+    older stored comics that carry a .jpg name over GIF bytes.
+
+    Returns (image_url, mime_type, width, height, byte_count) or None.
     """
-    if data[:6] in (b"GIF87a", b"GIF89a"):
-        width = int.from_bytes(data[6:8], "little")
-        height = int.from_bytes(data[8:10], "little")
-        return ".gif", "image/gif", width, height
+    try:
+        with Image.open(io.BytesIO(data)) as img:
+            img.load()
+            frame = img.convert("RGB")
+    except Exception as e:
+        print(f"  [ERR] Could not decode image: {e}")
+        return None
 
-    if data[:8] == b"\x89PNG\r\n\x1a\n":
-        width = int.from_bytes(data[16:20], "big")
-        height = int.from_bytes(data[20:24], "big")
-        return ".png", "image/png", width, height
+    if frame.width < 1 or frame.height < 1:
+        print("  [ERR] Decoded image has no pixels")
+        return None
 
-    if data[:2] == b"\xff\xd8":
-        sof_markers = {
-            0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6,
-            0xC7, 0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF,
-        }
-        i = 2
-        while i < len(data) - 9:
-            if data[i] != 0xFF:
-                i += 1
-                continue
-            marker = data[i + 1]
-            if marker == 0xFF:
-                i += 1
-                continue
-            if marker in (0xD8, 0x01) or 0xD0 <= marker <= 0xD7:
-                i += 2
-                continue
-            seg_len = int.from_bytes(data[i + 2:i + 4], "big")
-            if seg_len < 2:
-                break
-            if marker in sof_markers:
-                height = int.from_bytes(data[i + 5:i + 7], "big")
-                width = int.from_bytes(data[i + 7:i + 9], "big")
-                return ".jpg", "image/jpeg", width, height
-            i += 2 + seg_len
-        return ".jpg", "image/jpeg", 0, 0
+    scale = min(OG_WIDTH / frame.width, OG_HEIGHT / frame.height)
+    new_w = max(1, round(frame.width * scale))
+    new_h = max(1, round(frame.height * scale))
+    resized = frame.resize((new_w, new_h), Image.LANCZOS)
 
-    return None
+    canvas = Image.new("RGB", (OG_WIDTH, OG_HEIGHT), OG_BACKGROUND)
+    canvas.paste(resized, ((OG_WIDTH - new_w) // 2, (OG_HEIGHT - new_h) // 2))
+
+    Path(IMAGES_DIR).mkdir(parents=True, exist_ok=True)
+    # Drop any stale copy for today that used a different extension
+    for old in Path(IMAGES_DIR).glob(f"{date_str}.*"):
+        if old.suffix != ".jpg":
+            old.unlink()
+            print(f"  [OK] Removed stale {old.name}")
+
+    dest = Path(IMAGES_DIR) / f"{date_str}.jpg"
+    # Baseline, not progressive: some unfurlers mishandle progressive JPEG.
+    canvas.save(dest, "JPEG", quality=JPEG_QUALITY, optimize=True, progressive=False)
+    byte_count = dest.stat().st_size
+    image_url = f"{SITE_URL}/images/{date_str}.jpg"
+    print(f"  [OK] Normalised {frame.width}x{frame.height} -> {OG_WIDTH}x{OG_HEIGHT} "
+          f"JPEG: {dest.name} ({byte_count} bytes)")
+    return image_url, "image/jpeg", OG_WIDTH, OG_HEIGHT, byte_count
 
 
 def download_image(source_url, date_str):
@@ -177,26 +186,14 @@ def download_image(source_url, date_str):
                 time.sleep(IMAGE_RETRY_BACKOFF * attempt)
             continue
 
-        sniffed = sniff_image(data)
-        if not sniffed:
-            print("  [ERR] Downloaded payload is not a recognised image")
+        normalized = normalize_image(data, date_str)
+        if not normalized:
+            print("  [ERR] Downloaded payload could not be normalised")
             if attempt < MAX_IMAGE_RETRIES:
                 time.sleep(IMAGE_RETRY_BACKOFF * attempt)
             continue
 
-        ext, mime, width, height = sniffed
-
-        # Drop any stale copy for today that used a different extension
-        for old in Path(IMAGES_DIR).glob(f"{date_str}.*"):
-            if old.suffix != ext:
-                old.unlink()
-                print(f"  [OK] Removed stale {old.name}")
-
-        dest = Path(IMAGES_DIR) / f"{date_str}{ext}"
-        dest.write_bytes(data)
-        image_url = f"{SITE_URL}/images/{date_str}{ext}"
-        print(f"  [OK] Saved {dest} ({len(data)} bytes, {width}x{height}, {mime})")
-        return image_url, mime, width, height, len(data)
+        return normalized
 
     return None
 
@@ -264,23 +261,15 @@ def use_local_pool(date_str):
             print(f"  [SKIP] {candidate.name} is too small ({len(data)} bytes)")
             continue
 
-        sniffed = sniff_image(data)
-        if not sniffed:
-            print(f"  [SKIP] {candidate.name} is not a recognised image")
+        # Normalising re-encodes from the decoded pixels, so a stored file whose
+        # extension lies about its bytes is still perfectly usable here.
+        normalized = normalize_image(data, date_str)
+        if not normalized:
+            print(f"  [SKIP] {candidate.name} could not be normalised")
             continue
 
-        ext, mime, width, height = sniffed
-        suffix = candidate.suffix.lower()
-        if suffix == ".jpeg":
-            suffix = ".jpg"
-        if suffix != ext:
-            # Pages types by extension, so a mislabelled file would unfurl blank.
-            print(f"  [SKIP] {candidate.name} holds {mime} but is named {candidate.suffix}")
-            continue
-
-        image_url = f"{SITE_URL}/images/{candidate.name}"
-        print(f"  [OK] Reusing {candidate.name} ({len(data)} bytes, {width}x{height}, {mime})")
-        return image_url, mime, width, height, len(data)
+        print(f"  [OK] Reusing {candidate.name}")
+        return normalized
 
     print("  [ERR] No usable image in the local pool")
     return None
