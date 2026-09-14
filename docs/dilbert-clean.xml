@@ -5,8 +5,18 @@
     <link>https://djz2k.github.io/dilbert-rss/dilbert-clean.xml</link>
     <description>A daily classic Dilbert comic strip</description>
     <language>en-us</language>
-    <pubDate>Sun, 13 Sep 2026 17:10:47 +0000</pubDate>
-    <lastBuildDate>Sun, 13 Sep 2026 17:10:47 +0000</lastBuildDate>
+    <pubDate>Mon, 14 Sep 2026 18:58:53 +0000</pubDate>
+    <lastBuildDate>Mon, 14 Sep 2026 18:58:53 +0000</lastBuildDate>
+    <item>
+      <title>Dilbert for 2026-09-14</title>
+      <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-09-14.html</link>
+      <guid isPermaLink="true">https://djz2k.github.io/dilbert-rss/dilbert-2026-09-14.html</guid>
+      <pubDate>Mon, 14 Sep 2026 18:58:53 +0000</pubDate>
+      <description>&lt;img src="https://djz2k.github.io/dilbert-rss/images/2026-09-14.jpg" alt="Dilbert comic for 2026-09-14" /&gt;&lt;p&gt;View today's Dilbert comic.&lt;/p&gt;</description>
+      <enclosure url="https://djz2k.github.io/dilbert-rss/images/2026-09-14.jpg" type="image/jpeg" length="146328" />
+      <media:content url="https://djz2k.github.io/dilbert-rss/images/2026-09-14.jpg" type="image/jpeg" medium="image" width="1200" height="630" />
+      <media:thumbnail url="https://djz2k.github.io/dilbert-rss/images/2026-09-14.jpg" />
+    </item>
     <item>
       <title>Dilbert for 2026-09-13</title>
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-09-13.html</link>
@@ -440,14 +450,6 @@
       <pubDate>Sun, 26 Jul 2026 14:59:12 +0000</pubDate>
       <description>&lt;img src="https://web.archive.org/web/20230307013210im_/https://assets.amuniversal.com/1b7d2b109c4a012f2fe400163e41dd5b" alt="Dilbert comic" /&gt;</description>
       <enclosure url="https://web.archive.org/web/20230307013210im_/https://assets.amuniversal.com/1b7d2b109c4a012f2fe400163e41dd5b" type="image/gif" />
-    </item>
-    <item>
-      <title>Dilbert for 2026-07-25</title>
-      <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-25.html</link>
-      <guid>https://djz2k.github.io/dilbert-rss/dilbert-2026-07-25.html</guid>
-      <pubDate>Sat, 25 Jul 2026 14:57:22 +0000</pubDate>
-      <description>&lt;img src="https://web.archive.org/web/20230304005417im_/https://assets.amuniversal.com/dff61e406cb901301d46001dd8b71c47" alt="Dilbert comic" /&gt;</description>
-      <enclosure url="https://web.archive.org/web/20230304005417im_/https://assets.amuniversal.com/dff61e406cb901301d46001dd8b71c47" type="image/gif" />
     </item>
   </channel>
 </rss>
