@@ -5,8 +5,18 @@
     <link>https://djz2k.github.io/dilbert-rss/dilbert-clean.xml</link>
     <description>A daily classic Dilbert comic strip</description>
     <language>en-us</language>
-    <pubDate>Tue, 20 Oct 2026 18:14:33 +0000</pubDate>
-    <lastBuildDate>Tue, 20 Oct 2026 18:14:33 +0000</lastBuildDate>
+    <pubDate>Wed, 21 Oct 2026 18:19:24 +0000</pubDate>
+    <lastBuildDate>Wed, 21 Oct 2026 18:19:24 +0000</lastBuildDate>
+    <item>
+      <title>Dilbert for 2026-10-21</title>
+      <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-10-21.html</link>
+      <guid isPermaLink="true">https://djz2k.github.io/dilbert-rss/dilbert-2026-10-21.html</guid>
+      <pubDate>Wed, 21 Oct 2026 18:19:24 +0000</pubDate>
+      <description>&lt;img src="https://djz2k.github.io/dilbert-rss/images/2026-10-21.jpg" alt="Dilbert comic for 2026-10-21" /&gt;&lt;p&gt;View today's Dilbert comic.&lt;/p&gt;</description>
+      <enclosure url="https://djz2k.github.io/dilbert-rss/images/2026-10-21.jpg" type="image/jpeg" length="123831" />
+      <media:content url="https://djz2k.github.io/dilbert-rss/images/2026-10-21.jpg" type="image/jpeg" medium="image" width="1200" height="630" />
+      <media:thumbnail url="https://djz2k.github.io/dilbert-rss/images/2026-10-21.jpg" />
+    </item>
     <item>
       <title>Dilbert for 2026-10-20</title>
       <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-10-20.html</link>
@@ -496,16 +506,6 @@
       <enclosure url="https://djz2k.github.io/dilbert-rss/images/2026-09-02.jpg" type="image/jpeg" length="138208" />
       <media:content url="https://djz2k.github.io/dilbert-rss/images/2026-09-02.jpg" type="image/jpeg" medium="image" width="1200" height="630" />
       <media:thumbnail url="https://djz2k.github.io/dilbert-rss/images/2026-09-02.jpg" />
-    </item>
-    <item>
-      <title>Dilbert for 2026-09-01</title>
-      <link>https://djz2k.github.io/dilbert-rss/dilbert-2026-09-01.html</link>
-      <guid isPermaLink="true">https://djz2k.github.io/dilbert-rss/dilbert-2026-09-01.html</guid>
-      <pubDate>Tue, 01 Sep 2026 17:31:38 +0000</pubDate>
-      <description>&lt;img src="https://djz2k.github.io/dilbert-rss/images/2026-09-01.jpg" alt="Dilbert comic for 2026-09-01" /&gt;&lt;p&gt;View today's Dilbert comic.&lt;/p&gt;</description>
-      <enclosure url="https://djz2k.github.io/dilbert-rss/images/2026-09-01.jpg" type="image/jpeg" length="215166" />
-      <media:content url="https://djz2k.github.io/dilbert-rss/images/2026-09-01.jpg" type="image/jpeg" medium="image" width="1200" height="630" />
-      <media:thumbnail url="https://djz2k.github.io/dilbert-rss/images/2026-09-01.jpg" />
     </item>
   </channel>
 </rss>
